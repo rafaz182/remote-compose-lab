@@ -125,10 +125,38 @@ Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 2. **O documento é o produto** — os bytes como entrega; simulamos o transporte.
 3. **Por que um Modifier paralelo?** — a pergunta que explica a biblioteca.
 4. **Front × Back de verdade** — um Ktor em JVM pura gera a tela e entrega por HTTP.
-5. **A galeria do servidor** — cinco telas ricas desenhadas no backend, e eventos voltando ao app.
+5. **A galeria do servidor** — sete telas desenhadas no backend, e eventos voltando ao app.
+6. **O experimento dos dois players** — mesmo documento, dois executores; a técnica que isola um defeito.
 
 O que vem depois está mapeado em [`docs/07-roteiro.md`](docs/07-roteiro.md),
 derivado dos 172 opcodes do formato.
+
+## As classes do SDK
+
+A documentação gerada do `androidx.compose.remote` é escassa — nomes de método
+sem explicação e quase nenhum exemplo. Por isso mantemos um mapa próprio de
+**todas as classes que este projeto usa**, com o que cada uma faz, com quem
+conversa e quais pegadinhas tem:
+
+**→ [`docs/09-classes-do-sdk.md`](docs/09-classes-do-sdk.md)**
+
+Resumo do elenco principal:
+
+| Lado | Classe | Papel |
+|---|---|---|
+| servidor | `RemoteComposeWriter` | acumula operações e entrega os bytes |
+| servidor | `RcScope` | a DSL: `Column`, `Row`, `Text`, `Modifier` |
+| servidor | `RcFloat` | um **valor** dentro do documento (não é número — é fórmula) |
+| servidor | `CreationDisplayInfo` | tamanho de referência; **esquecer = tela em branco** |
+| servidor | `Profile` | capacidades do destino; exige `apiLevel ≥ 6` |
+| cliente | `RemoteDocument` | `ByteArray` → documento executável; expõe `stats` |
+| cliente | `RemoteComposePlayer` | o player (existe em duas versões: Compose e View) |
+| cliente | `captureSingleRemoteDocument` | grava documento a partir de `@Composable` |
+| cliente | `RemoteModifier` / `rdp` / `rsp` | os gêmeos graváveis de `Modifier` / `dp` / `sp` |
+
+Se você só for ler uma coisa de lá, leia a **tabela de decisão**: existem três
+`Modifier` diferentes neste projeto, e saber qual usar quando resolve boa parte
+da confusão inicial.
 
 ## Leia também
 
@@ -141,6 +169,7 @@ derivado dos 172 opcodes do formato.
 - [`docs/06-arquitetura-do-server.md`](docs/06-arquitetura-do-server.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
 - [`docs/07-roteiro.md`](docs/07-roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
 - [`docs/08-operando-o-emulador.md`](docs/08-operando-o-emulador.md) — instalar, tocar, fotografar e depurar o app pela linha de comando, com `adb`.
+- [`docs/09-classes-do-sdk.md`](docs/09-classes-do-sdk.md) — cada classe do SDK que usamos: o que faz, com quem conversa e onde estão as pegadinhas.
 
 ## Front × Back
 
