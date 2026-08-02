@@ -13,6 +13,9 @@ build/
 # Saída do Eclipse/VS Code Java, que aparece sozinha em módulos JVM.
 bin/
 
+# Logs de erro do compilador Kotlin.
+.kotlin/
+
 # Caminho do Android SDK, específico da máquina.
 local.properties
 

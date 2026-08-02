@@ -6,6 +6,8 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
 import io.ktor.client.statement.HttpResponse
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 /**
  * Busca documentos Remote Compose no módulo `:server`.
@@ -40,4 +42,31 @@ object ClienteDeDocumentos {
         }
         return resposta.readRawBytes()
     }
+
+    /**
+     * Busca o CATÁLOGO de telas — e este vem em JSON, não em bytes.
+     *
+     * A divisão é proposital e é o desenho certo para um sistema real:
+     *
+     *   JSON      -> para o que o app precisa ENTENDER (montar um menu,
+     *                decidir navegação, tomar decisão de produto)
+     *   documento -> para o que o app precisa apenas MOSTRAR
+     *
+     * Server-Driven UI não significa "tudo vira documento". Significa saber
+     * onde traçar a linha.
+     */
+    suspend fun buscarTelas(): List<TelaRemota> {
+        val corpo = String(buscar("/telas"), Charsets.UTF_8)
+        return json.decodeFromString(corpo)
+    }
+
+    private val json = Json { ignoreUnknownKeys = true }
 }
+
+/** Metadado de uma tela disponível no servidor. */
+@Serializable
+data class TelaRemota(
+    val id: String,
+    val titulo: String,
+    val ensina: String,
+)

@@ -1,6 +1,7 @@
 package dev.rafaz.remotecomposelab.server
 
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
@@ -63,6 +64,65 @@ data class Indice(
     val endpoints: List<String>,
 )
 
+@Serializable
+data class TelaDto(val id: String, val titulo: String, val ensina: String)
+
+/**
+ * O catálogo de telas ricas, em ordem de dificuldade.
+ *
+ * Os dados de exemplo moram aqui, no servidor. Trocar qualquer coisa nesta
+ * lista muda o app de todo mundo, sem release — que é o ponto inteiro.
+ */
+private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
+    "perfil" to (
+        TelaDto("perfil", "Cartão de perfil", "Row, alinhamento vertical e clip circular") to
+            { telaCartaoPerfil("Rafael Ramos", "Desenvolvedor Android", "RR") }
+        ),
+    "metricas" to (
+        TelaDto("metricas", "Painel de métricas", "weight: dividir espaço proporcionalmente") to
+            {
+                telaPainelMetricas(
+                    listOf(
+                        Metrica("Vendas", "1.284", "+12%", 0xFF6BCB77.toInt()),
+                        Metrica("Devoluções", "37", "-4%", 0xFF4DD0E1.toInt()),
+                        Metrica("Ticket médio", "R$ 89", "+3%", 0xFF9B7BFF.toInt()),
+                    ),
+                )
+            }
+        ),
+    "produtos" to (
+        TelaDto("produtos", "Lista de produtos", "gerar UI a partir de dados do servidor") to
+            {
+                telaListaProdutos(
+                    listOf(
+                        Produto("Teclado mecânico", "Periféricos", "R$ 349,00"),
+                        Produto("Monitor 27\"", "Monitores", "R$ 1.299,00", emPromocao = true),
+                        Produto("Cadeira ergonômica", "Móveis", "R$ 2.150,00"),
+                        Produto("Webcam 1080p", "Periféricos", "R$ 279,00", emPromocao = true),
+                    ),
+                )
+            }
+        ),
+    "recibo" to (
+        TelaDto("recibo", "Recibo", "spaceBetween: alinhar rótulo e valor sem calcular largura") to
+            {
+                telaRecibo(
+                    listOf(
+                        "Monitor 27\"" to "R$ 1.299,00",
+                        "Webcam 1080p" to "R$ 279,00",
+                        "Frete" to "R$ 0,00",
+                        "Desconto" to "− R$ 120,00",
+                    ),
+                    total = "R$ 1.458,00",
+                )
+            }
+        ),
+    "interativo" to (
+        TelaDto("interativo", "Botões interativos", "eventos: o documento conversa com o app") to
+            { telaInterativa() }
+        ),
+)
+
 fun main() {
     // host = "0.0.0.0" e não "localhost": o emulador do Android é outra
     // máquina virtual. Ele alcança o host pelo IP mágico 10.0.2.2, mas só se
@@ -81,6 +141,8 @@ fun main() {
                         endpoints = listOf(
                             "GET  /documento/boas-vindas?nome=Rafael   -> bytes do documento",
                             "GET  /documento/promocao                  -> bytes do documento",
+                            "GET  /telas                               -> catálogo de telas (JSON)",
+                            "GET  /documento/tela/{id}                 -> bytes da tela",
                             "GET  /promocao                            -> estado atual (JSON)",
                             "PUT  /promocao                            -> muda a promoção (JSON)",
                             "DELETE /promocao                          -> desliga a promoção",
@@ -108,6 +170,30 @@ fun main() {
                     documentoPromocao(promocaoAtual.get()),
                     ContentType.Application.OctetStream,
                 )
+            }
+
+            // ── Catálogo de telas ricas ──────────────────────────────────
+            //
+            // Repare no par de endpoints. `/telas` devolve JSON — é metadado,
+            // serve para o app montar um menu. `/documento/tela/{id}` devolve
+            // bytes — é a tela em si.
+            //
+            // Essa divisão é o desenho certo para um sistema real: JSON para
+            // o que o app precisa ENTENDER, documento para o que ele precisa
+            // apenas MOSTRAR.
+
+            get("/telas") {
+                call.respond(TELAS.values.map { it.first })
+            }
+
+            get("/documento/tela/{id}") {
+                val id = call.parameters["id"]
+                val tela = TELAS[id]
+                if (tela == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("erro" to "tela '$id' não existe"))
+                } else {
+                    call.respondBytes(tela.second(), ContentType.Application.OctetStream)
+                }
             }
 
             // ── Controle da promoção, para você brincar via curl ──────────

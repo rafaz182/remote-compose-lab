@@ -10,6 +10,11 @@ plugins {
     // Desde o Kotlin 2.0 esse compilador é versionado junto com o Kotlin
     // (e não mais com a versão do Compose).
     alias(libs.plugins.kotlin.compose)
+
+    // Gera o código de (de)serialização das classes @Serializable em tempo de
+    // compilação — sem reflexão. Precisamos dele só para ler o catálogo de
+    // telas, que é a única coisa que o servidor manda em JSON.
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -96,4 +101,5 @@ dependencies {
     // ---- Cliente HTTP, para buscar documentos no módulo :server ----
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.kotlinx.serialization.json)
 }

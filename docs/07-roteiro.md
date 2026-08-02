@@ -25,6 +25,8 @@ Legenda: ✅ feito · 🔜 próximo · 🔬 existe mas não verifiquei
 | ✅ | Front × Back real, com backend JVM | Aula 04 |
 | ✅ | O formato binário por dentro | `docs/05` |
 | ✅ | Arquitetura do servidor | `docs/06` |
+| ✅ | Telas ricas geradas no servidor | Aula 05 · `server/.../Telas.kt` |
+| ✅ | **Eventos e ações** (era o item B1) | Aula 05 · tela `interativo` |
 
 ---
 
@@ -33,11 +35,31 @@ Legenda: ✅ feito · 🔜 próximo · 🔬 existe mas não verifiquei
 São estes quatro que transformam "desenho bonito" em "interface". **É aqui que
 eu sugiro continuar.**
 
-### B1. Eventos e ações 🔜
+### B1. Eventos e ações — ✅ FEITO na Aula 05
 
 Como o documento reage a toque e conversa de volta com o app hospedeiro.
 
-Opcodes que provam que existe: `CLICK_AREA` (64), `MODIFIER_CLICK` (59),
+**O que verificamos rodando:**
+
+```kotlin
+// SERVIDOR (Telas.kt)
+Box(modifier = Modifier.background(cor).onClick { hostAction("comprar:sku-1042") })
+
+// APP (L05GaleriaDoServidor.kt)
+RemoteComposePlayer(doc, …) { nome, valor, _ -> /* "comprar:sku-1042" */ }
+```
+
+Toque nos três botões, três strings chegando no app. O contrato inteiro é uma
+**string** — sem schema, sem DTO, sem versionamento.
+
+Descoberta lateral: a DSL de JVM tem `onClick`, `onLongClick` e `onDoubleClick`,
+e dentro delas cabem **duas coisas diferentes**:
+
+- `hostAction("...")` — avisa o app (foi o que usamos);
+- `setValue(...)` — muda um valor **dentro do documento**, sem ida e volta.
+  Esse segundo caminho é a ponte para o item B2, e ainda não exercitamos.
+
+Opcodes envolvidos: `CLICK_AREA` (64), `MODIFIER_CLICK` (59),
 `MODIFIER_MULTI_CLICK` (83), `MODIFIER_TOUCH_DOWN` (219), `MODIFIER_TOUCH_UP`
 (220), `MODIFIER_TOUCH_CANCEL` (225), `HOST_ACTION` (209), `HOST_NAMED_ACTION`
 (210), `HOST_METADATA_ACTION` (216), `RUN_ACTION` (236).

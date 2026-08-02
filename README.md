@@ -52,8 +52,10 @@ Ou abra a pasta no Android Studio e rode normalmente.
 2. **O documento é o produto** — os bytes como entrega; simulamos o transporte.
 3. **Por que um Modifier paralelo?** — a pergunta que explica a biblioteca.
 4. **Front × Back de verdade** — um Ktor em JVM pura gera a tela e entrega por HTTP.
+5. **A galeria do servidor** — cinco telas ricas desenhadas no backend, e eventos voltando ao app.
 
-Mais aulas vêm por aí — o rumo é combinado a cada passo.
+O que vem depois está mapeado em [`docs/07-roteiro.md`](docs/07-roteiro.md),
+derivado dos 172 opcodes do formato.
 
 ## Leia também
 

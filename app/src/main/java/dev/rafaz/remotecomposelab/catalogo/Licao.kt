@@ -5,6 +5,7 @@ import dev.rafaz.remotecomposelab.licoes.L01OlaRemoteCompose
 import dev.rafaz.remotecomposelab.licoes.L02ODocumentoEOProduto
 import dev.rafaz.remotecomposelab.licoes.L03PorQueUmModifierParalelo
 import dev.rafaz.remotecomposelab.licoes.L04FrontXBack
+import dev.rafaz.remotecomposelab.licoes.L05GaleriaDoServidor
 
 /**
  * Uma aula do laboratório.
@@ -47,5 +48,11 @@ val LICOES: List<Licao> = listOf(
         titulo = "Front × Back de verdade",
         resumo = "Um Ktor em JVM pura gera a tela e entrega por HTTP. Rede real.",
         conteudo = { L04FrontXBack() },
+    ),
+    Licao(
+        numero = 5,
+        titulo = "A galeria do servidor",
+        resumo = "Cinco telas ricas desenhadas no backend — e eventos voltando ao app.",
+        conteudo = { L05GaleriaDoServidor() },
     ),
 )
