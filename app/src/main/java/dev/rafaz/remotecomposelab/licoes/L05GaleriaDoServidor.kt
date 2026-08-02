@@ -139,7 +139,8 @@ fun L05GaleriaDoServidor() {
                     doc,
                     Modifier.fillMaxWidth().height(alturaDoPalco(selecionada?.id)),
                     1080,
-                    alturaDoDocumento(selecionada?.id),
+                    // A altura vem do CATÁLOGO, não de um `when` no app.
+                    selecionada?.altura ?: 400,
                     // O relógio que o documento consulta. Ele é obrigatório
                     // porque o formato prevê valores que dependem do TEMPO —
                     // animações, contadores, watch faces. Nenhuma das nossas
@@ -236,25 +237,15 @@ fun L05GaleriaDoServidor() {
     }
 }
 
-/** Altura do palco na tela do app, por tela. */
+/**
+ * Altura da MOLDURA no app — quanto espaço da nossa tela o palco ocupa.
+ *
+ * Não confundir com `TelaRemota.altura`, que é a altura de referência do
+ * DOCUMENTO e vem do servidor. Esta aqui é decisão de layout do app: quanto
+ * espaço eu quero dar para exibir aquilo.
+ */
 private fun alturaDoPalco(id: String?) = when (id) {
     "produtos" -> 340.dp
-    "recibo" -> 300.dp
-    "interativo" -> 300.dp
-    else -> 200.dp
-}
-
-/**
- * Altura declarada pelo documento no servidor.
- *
- * Precisa bater com o que `Telas.kt` gerou — o player usa esse valor para
- * saber como escalar o conteúdo dentro do espaço disponível.
- */
-private fun alturaDoDocumento(id: String?) = when (id) {
-    "perfil" -> 300
-    "metricas" -> 320
-    "produtos" -> 710
-    "recibo" -> 520
-    "interativo" -> 560
-    else -> 400
+    "recibo", "interativo", "contador" -> 300.dp
+    else -> 220.dp
 }

@@ -63,10 +63,18 @@ object ClienteDeDocumentos {
     private val json = Json { ignoreUnknownKeys = true }
 }
 
-/** Metadado de uma tela disponível no servidor. */
+/**
+ * Metadado de uma tela disponível no servidor.
+ *
+ * [altura] é a altura de referência que o documento declara. O player precisa
+ * dela para escalar o conteúdo — e ela vem do servidor de propósito. Antes o
+ * app tinha um `when (id)` com as alturas chumbadas, e isso quebrava sempre
+ * que o servidor mudava uma tela.
+ */
 @Serializable
 data class TelaRemota(
     val id: String,
     val titulo: String,
     val ensina: String,
+    val altura: Int,
 )

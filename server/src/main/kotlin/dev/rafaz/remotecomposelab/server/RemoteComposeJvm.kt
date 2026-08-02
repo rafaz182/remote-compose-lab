@@ -84,7 +84,7 @@ fun documento(
     largura: Int = 1080,
     altura: Int = 600,
     densidade: Int = DENSIDADE_PADRAO,
-    conteudo: RcScope.() -> Unit,
+    conteudo: RcScope.(RemoteComposeWriter) -> Unit,
 ): ByteArray {
     val plataforma = JvmRcPlatformServices()
     val fabrica = RemoteComposeWriterFactory { info, profile, obj ->
@@ -104,7 +104,11 @@ fun documento(
     // A ponte em Java existe porque `RcScopeImpl` é `internal` no Kotlin.
     // Ela também cria o RcRoot — quem o criava antes era o `createRcBuffer`,
     // que deixamos de usar. Veja PonteRc.java para o porquê completo.
-    return PonteRc.escrever(writer) { escopo -> escopo.conteudo() }
+    //
+    // Passamos o `writer` para o conteúdo porque criar um VALOR remoto
+    // (`RcFloat(writer, 0f)`) exige uma referência a ele. Telas que não usam
+    // estado simplesmente ignoram o parâmetro.
+    return PonteRc.escrever(writer) { escopo -> escopo.conteudo(writer) }
 }
 
 /*

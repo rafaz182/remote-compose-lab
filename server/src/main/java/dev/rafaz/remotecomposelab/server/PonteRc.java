@@ -1,6 +1,7 @@
 package dev.rafaz.remotecomposelab.server;
 
 import androidx.compose.remote.creation.RemoteComposeWriter;
+import androidx.compose.remote.creation.dsl.RcFloat;
 import androidx.compose.remote.creation.dsl.RcScope;
 import androidx.compose.remote.creation.dsl.RcScopeImpl;
 
@@ -50,5 +51,20 @@ public final class PonteRc {
         // responder 1.048.576 bytes para um documento de 400.
         // `encodeToByteArray()` devolve só a parte realmente escrita.
         return writer.encodeToByteArray();
+    }
+
+    /**
+     * Cria um VALOR remoto — um espaço de valor dentro do documento.
+     *
+     * Mesma história do {@link RcScopeImpl}: o construtor
+     * {@code RcFloat(RemoteComposeWriter, float)} é {@code internal} no
+     * Kotlin, mas {@code public} no bytecode. Java o enxerga.
+     *
+     * O resultado NÃO é um número. É a referência a um espaço que o player
+     * vai avaliar. Somar, multiplicar ou comparar esse objeto no Kotlin
+     * grava uma FÓRMULA no documento, não faz uma conta.
+     */
+    public static RcFloat valorFloat(RemoteComposeWriter writer, float inicial) {
+        return new RcFloat(writer, inicial);
     }
 }

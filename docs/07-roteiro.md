@@ -72,7 +72,48 @@ uma *intent* do Android — ou seja, abrir outra tela, outro app. Isso levanta
 uma pergunta de segurança óbvia que vale um parágrafo em qualquer artigo sério:
 **o que acontece se o documento vier de uma fonte não confiável?**
 
-### B2. Estado remoto 🔜
+### B2. Estado remoto — ⚠️ PARCIAL
+
+Tentado na Aula 05 (telas `contador` e `relogio`). O que ficou provado e o que
+não:
+
+**✅ Valores remotos existem e são exibidos.** `PonteRc.valorFloat(writer, 7f)`
+mais `createTextFromFloat(valor, 3, 0, 0)` desenha o número corretamente. O
+construtor de `RcFloat` é `internal` no Kotlin — mesma ponte Java do
+`RcScopeImpl`.
+
+**✅ O player reavalia continuamente.** A tela `relogio` usa `hour()`,
+`minutes()` e `seconds()`, e os segundos **avançam em tempo real** (47 → 52 em
+cinco segundos, verificado por dois screenshots). Isso prova que expressões
+ligadas ao tempo são recalculadas quadro a quadro, sem nenhuma participação do
+app. É a base das animações (B4).
+
+**❌ `setValue` não surtiu efeito.** Os botões da tela `contador` usam
+`onClick { setValue(contador, 1f + contador) }`. O toque chega (o mesmo padrão
+com `hostAction` funciona), mas o valor não muda — nem com aritmética, nem com
+constante (`setValue(contador, 0f)`). Isolado assim:
+
+| Teste | Resultado |
+|---|---|
+| valor inicial 7 aparece na tela | ✅ |
+| relógio avança sozinho | ✅ |
+| `setValue` com expressão | ❌ |
+| `setValue` com constante | ❌ |
+| nenhuma requisição HTTP nos toques | ✅ (3 antes, 3 depois) |
+
+**❓ Hora não bate.** O aparelho marcava `04:15:03` e o documento desenhava
+`4:54:52`. A hora coincide, minutos e segundos não. Ainda sem explicação.
+
+**Próximos passos para fechar o item:**
+1. Dissecar o documento do contador e conferir se o opcode
+   `VALUE_FLOAT_CHANGE_ACTION` (222) foi realmente gravado. Se não estiver lá,
+   o problema é na escrita; se estiver, é na execução.
+2. Testar o caminho alternativo: `StateUpdater` do `player-core.state`, que
+   permite ao **app** alterar um valor nomeado de fora. Se esse funcionar e o
+   `setValue` não, a diferença aponta o culpado.
+3. Investigar se `named()` quebra a ligação entre o valor e a ação.
+
+Contexto original do item:
 
 Valores que vivem **dentro** do documento e podem mudar sem regravá-lo.
 

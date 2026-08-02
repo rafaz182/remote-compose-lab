@@ -27,11 +27,84 @@ salvo, transmitido e executado por um processo que nunca viu o seu código.
 Pré-requisitos: JDK 17+, Android SDK com `platforms;android-37.1`, e um
 dispositivo/emulador com **API 29 ou superior**.
 
+### O caminho curto
+
+Precisa de **dois terminais**: um para o servidor, outro para o app.
+
 ```powershell
+# terminal 1 — o backend (fica rodando)
+.\gradlew.bat :server:run
+
+# terminal 2 — compila e instala o app
 .\gradlew.bat :app:installDebug
 ```
 
-Ou abra a pasta no Android Studio e rode normalmente.
+Depois abra o app, vá na Aula 04 ou 05 e toque em carregar.
+
+### Comandos, um por um
+
+| O que | Comando |
+|---|---|
+| Subir o servidor (porta 8080) | `.\gradlew.bat :server:run` |
+| Compilar o app | `.\gradlew.bat :app:assembleDebug` |
+| Compilar **e** instalar | `.\gradlew.bat :app:installDebug` |
+| Ver a tabela de opcodes e dumps hex | `.\gradlew.bat :server:runDissecar` |
+| Descobrir o `apiLevel` aceito | `.\gradlew.bat :server:runSonda` |
+| Limpar tudo | `.\gradlew.bat clean` |
+
+No Linux/macOS troque `.\gradlew.bat` por `./gradlew`.
+
+### Emulador pela linha de comando
+
+Se preferir não abrir o Android Studio só para subir o emulador:
+
+```powershell
+# onde mora o SDK (ajuste se o seu estiver em outro lugar)
+$SDK = "$env:LOCALAPPDATA\Android\Sdk"
+
+# quais emuladores existem
+& "$SDK\emulator\emulator.exe" -list-avds
+
+# subir um deles (em segundo plano, janela minimizada)
+Start-Process "$SDK\emulator\emulator.exe" -ArgumentList "-avd","Pixel_9" -WindowStyle Minimized
+
+# esperar ficar pronto de verdade (não basta a janela aparecer)
+do { Start-Sleep 3 } until ((& "$SDK\platform-tools\adb.exe" shell getprop sys.boot_completed).Trim() -eq "1")
+
+# conferir
+& "$SDK\platform-tools\adb.exe" devices
+```
+
+### Testar o servidor sem o app
+
+```powershell
+# índice: lista todos os endpoints
+curl http://localhost:8080/
+
+# catálogo de telas (JSON)
+curl http://localhost:8080/telas
+
+# uma tela (bytes — só o tamanho interessa aqui)
+curl -s -o NUL -w "%{size_download} bytes`n" http://localhost:8080/documento/tela/produtos
+
+# mudar a promoção da Aula 04 em tempo real
+curl -X PUT http://localhost:8080/promocao -H "Content-Type: application/json" `
+  -d '{\"chamada\":\"Frete grátis\",\"descricao\":\"Hoje só\",\"preco\":\"R$ 0\"}'
+
+# desligar a promoção
+curl -X DELETE http://localhost:8080/promocao
+```
+
+### Se der errado
+
+| Sintoma | Causa provável |
+|---|---|
+| App mostra "Falhou: Connection refused" | Servidor não está no ar, ou subiu em `localhost` em vez de `0.0.0.0` |
+| `No connected devices!` | Emulador caiu — veja a seção do emulador acima |
+| `ClassNotFoundException` ao rodar `:server:run` | Cache do Gradle desalinhado: `.\gradlew.bat :server:clean` e tente de novo |
+| App instala mas crasha ao abrir | Tema não-AppCompat (ver `res/values/themes.xml`) |
+
+Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 
 ## Estrutura
 
@@ -67,6 +140,7 @@ derivado dos 172 opcodes do formato.
 - [`docs/05-lendo-os-bytes.md`](docs/05-lendo-os-bytes.md) — dissecando o formato binário byte a byte, com análise diferencial.
 - [`docs/06-arquitetura-do-server.md`](docs/06-arquitetura-do-server.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
 - [`docs/07-roteiro.md`](docs/07-roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
+- [`docs/08-operando-o-emulador.md`](docs/08-operando-o-emulador.md) — instalar, tocar, fotografar e depurar o app pela linha de comando, com `adb`.
 
 ## Front × Back
 

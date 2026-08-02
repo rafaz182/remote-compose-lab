@@ -64,8 +64,25 @@ data class Indice(
     val endpoints: List<String>,
 )
 
+/**
+ * Metadado de uma tela.
+ *
+ * Repare no campo [altura]. Ele existe porque o player precisa saber a altura
+ * de referência do documento para escalá-lo corretamente — e essa informação
+ * é METADADO, não conteúdo. Antes o app tinha um `when (id)` com as alturas
+ * fixas, o que quebrava toda vez que o servidor mudava uma tela.
+ *
+ * É um exemplo pequeno mas ilustrativo do desenho certo: se o app precisa
+ * *raciocinar* sobre a informação, ela vai em JSON. Se ele só precisa
+ * *mostrar*, vai no documento.
+ */
 @Serializable
-data class TelaDto(val id: String, val titulo: String, val ensina: String)
+data class TelaDto(
+    val id: String,
+    val titulo: String,
+    val ensina: String,
+    val altura: Int,
+)
 
 /**
  * O catálogo de telas ricas, em ordem de dificuldade.
@@ -75,11 +92,11 @@ data class TelaDto(val id: String, val titulo: String, val ensina: String)
  */
 private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
     "perfil" to (
-        TelaDto("perfil", "Cartão de perfil", "Row, alinhamento vertical e clip circular") to
+        TelaDto("perfil", "Cartão de perfil", "Row, alinhamento vertical e clip circular", 300) to
             { telaCartaoPerfil("Rafael Ramos", "Desenvolvedor Android", "RR") }
         ),
     "metricas" to (
-        TelaDto("metricas", "Painel de métricas", "weight: dividir espaço proporcionalmente") to
+        TelaDto("metricas", "Painel de métricas", "weight: dividir espaço proporcionalmente", 320) to
             {
                 telaPainelMetricas(
                     listOf(
@@ -91,7 +108,7 @@ private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
             }
         ),
     "produtos" to (
-        TelaDto("produtos", "Lista de produtos", "gerar UI a partir de dados do servidor") to
+        TelaDto("produtos", "Lista de produtos", "gerar UI a partir de dados do servidor", 710) to
             {
                 telaListaProdutos(
                     listOf(
@@ -104,7 +121,7 @@ private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
             }
         ),
     "recibo" to (
-        TelaDto("recibo", "Recibo", "spaceBetween: alinhar rótulo e valor sem calcular largura") to
+        TelaDto("recibo", "Recibo", "spaceBetween: alinhar rótulo e valor sem calcular largura", 520) to
             {
                 telaRecibo(
                     listOf(
@@ -118,8 +135,16 @@ private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
             }
         ),
     "interativo" to (
-        TelaDto("interativo", "Botões interativos", "eventos: o documento conversa com o app") to
+        TelaDto("interativo", "Botões interativos", "eventos: o documento conversa com o app", 560) to
             { telaInterativa() }
+        ),
+    "contador" to (
+        TelaDto("contador", "Contador", "estado remoto: muda sem tocar na rede", 520) to
+            { telaContador() }
+        ),
+    "relogio" to (
+        TelaDto("relogio", "Relógio", "o documento lê o tempo e recalcula sozinho", 460) to
+            { telaRelogio() }
         ),
 )
 
