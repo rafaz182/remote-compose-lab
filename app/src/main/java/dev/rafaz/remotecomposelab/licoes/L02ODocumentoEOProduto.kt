@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.licoes
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,13 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafael.remotecomposelab.remoto.lembrarDocumento
-import dev.rafael.remotecomposelab.ui.BlocoCodigo
-import dev.rafael.remotecomposelab.ui.Cores
-import dev.rafael.remotecomposelab.ui.Destaque
-import dev.rafael.remotecomposelab.ui.Explicacao
-import dev.rafael.remotecomposelab.ui.LinhaMetrica
-import dev.rafael.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
+import dev.rafaz.remotecomposelab.ui.BlocoCodigo
+import dev.rafaz.remotecomposelab.ui.Cores
+import dev.rafaz.remotecomposelab.ui.Destaque
+import dev.rafaz.remotecomposelab.ui.Explicacao
+import dev.rafaz.remotecomposelab.ui.LinhaMetrica
+import dev.rafaz.remotecomposelab.ui.Palco
 
 /**
  * AULA 02 — O documento é o produto

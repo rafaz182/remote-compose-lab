@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab.remoto
+package dev.rafaz.remotecomposelab.remoto
 
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.player.core.RemoteDocument

@@ -54,9 +54,22 @@ Mais aulas vêm por aí — o rumo é combinado a cada passo.
 
 ## Leia também
 
+- [`docs/00-referencias.md`](docs/00-referencias.md) — todas as fontes, e os comandos para verificar tudo você mesmo.
 - [`docs/01-a-ideia.md`](docs/01-a-ideia.md) — por que um formato binário, e não JSON.
-- [`docs/02-anatomia-dos-artefatos.md`](docs/02-anatomia-dos-artefatos.md) — JAR vs AAR e o que isso decide sobre plataformas.
+- [`docs/02-anatomia-dos-artefatos.md`](docs/02-anatomia-dos-artefatos.md) — os 11 artefatos em detalhe, grafo de dependências, e o que o empacotamento decide sobre plataformas.
 - [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — os erros reais que enfrentamos montando este projeto.
+
+## O que este projeto ainda NÃO tem
+
+Vale dizer em voz alta, porque é a primeira pergunta que um leitor faz:
+
+- **Não há backend.** O "transporte" da Aula 02 é simulado dentro do mesmo
+  processo — nenhum byte trafega em rede. É honesto como demonstração do
+  conceito, mas não é Front × Back.
+- **Não há iOS nem Desktop**, e não haverá: a tecnologia não suporta
+  (ver [`docs/02`](docs/02-anatomia-dos-artefatos.md)).
+
+O backend é o próximo passo do projeto.
 
 ## Estado da tecnologia
 

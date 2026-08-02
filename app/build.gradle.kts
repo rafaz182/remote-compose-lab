@@ -13,7 +13,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.rafael.remotecomposelab"
+    namespace = "dev.rafaz.remotecomposelab"
 
     // Precisa ser 37+: o Compose BOM 2026.06.01 traz bibliotecas compiladas
     // contra a API 37 e o AGP recusa compilar contra uma API menor.
@@ -21,7 +21,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "dev.rafael.remotecomposelab"
+        applicationId = "dev.rafaz.remotecomposelab"
 
         // ATENÇÃO — pegadinha real do Remote Compose, descoberta na marra
         // (o merge de manifesto falhou duas vezes até chegarmos aqui):

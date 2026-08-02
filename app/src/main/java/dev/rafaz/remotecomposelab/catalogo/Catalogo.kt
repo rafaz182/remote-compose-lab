@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab.catalogo
+package dev.rafaz.remotecomposelab.catalogo
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafael.remotecomposelab.ui.Cores
+import dev.rafaz.remotecomposelab.ui.Cores
 
 /**
  * Navegação do laboratório.

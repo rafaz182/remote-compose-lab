@@ -55,7 +55,7 @@ própria. Isso está registrado como ideia futura, não como pendência.
 ## Estrutura
 
 ```
-app/src/main/java/dev/rafael/remotecomposelab/
+app/src/main/java/dev/rafaz/remotecomposelab/
 ├── MainActivity.kt        # entrada; hospeda o catálogo
 ├── catalogo/              # modelo das aulas, lista e casca de cada aula
 ├── ui/                    # tema e componentes didáticos reutilizáveis

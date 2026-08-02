@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.licoes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafael.remotecomposelab.remoto.lembrarDocumento
-import dev.rafael.remotecomposelab.ui.BlocoCodigo
-import dev.rafael.remotecomposelab.ui.Cores
-import dev.rafael.remotecomposelab.ui.Destaque
-import dev.rafael.remotecomposelab.ui.Explicacao
-import dev.rafael.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
+import dev.rafaz.remotecomposelab.ui.BlocoCodigo
+import dev.rafaz.remotecomposelab.ui.Cores
+import dev.rafaz.remotecomposelab.ui.Destaque
+import dev.rafaz.remotecomposelab.ui.Explicacao
+import dev.rafaz.remotecomposelab.ui.Palco
 import androidx.compose.material3.Text as TextoNormal
 
 /**

@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab
+package dev.rafaz.remotecomposelab
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Modifier
-import dev.rafael.remotecomposelab.catalogo.Catalogo
-import dev.rafael.remotecomposelab.ui.TemaLaboratorio
+import dev.rafaz.remotecomposelab.catalogo.Catalogo
+import dev.rafaz.remotecomposelab.ui.TemaLaboratorio
 
 /**
  * Entrada do laboratório.

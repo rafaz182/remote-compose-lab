@@ -1,4 +1,4 @@
-package dev.rafael.remotecomposelab.ui
+package dev.rafaz.remotecomposelab.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

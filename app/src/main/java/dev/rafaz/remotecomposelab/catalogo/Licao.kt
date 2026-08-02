@@ -1,9 +1,9 @@
-package dev.rafael.remotecomposelab.catalogo
+package dev.rafaz.remotecomposelab.catalogo
 
 import androidx.compose.runtime.Composable
-import dev.rafael.remotecomposelab.licoes.L01OlaRemoteCompose
-import dev.rafael.remotecomposelab.licoes.L02ODocumentoEOProduto
-import dev.rafael.remotecomposelab.licoes.L03PorQueUmModifierParalelo
+import dev.rafaz.remotecomposelab.licoes.L01OlaRemoteCompose
+import dev.rafaz.remotecomposelab.licoes.L02ODocumentoEOProduto
+import dev.rafaz.remotecomposelab.licoes.L03PorQueUmModifierParalelo
 
 /**
  * Uma aula do laboratório.
