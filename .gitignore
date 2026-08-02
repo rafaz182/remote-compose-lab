@@ -10,6 +10,9 @@
 # 130 arquivos de cache do Kotlin quase entraram no primeiro commit dele.
 build/
 
+# Saída do Eclipse/VS Code Java, que aparece sozinha em módulos JVM.
+bin/
+
 # Caminho do Android SDK, específico da máquina.
 local.properties
 

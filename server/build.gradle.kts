@@ -33,6 +33,14 @@ tasks.register<JavaExec>("runSonda") {
     mainClass.set("dev.rafaz.remotecomposelab.server.SondaKt")
 }
 
+// Disseca um documento: tabela de opcodes + dump hexadecimal anotado.
+tasks.register<JavaExec>("runDissecar") {
+    group = "verification"
+    description = "Imprime a tabela de opcodes e um dump hexadecimal de documentos reais."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("dev.rafaz.remotecomposelab.server.DissecarKt")
+}
+
 dependencies {
     // ─────────────────────────────────────────────────────────────────────
     // A PROVA DE FOGO DESTE MÓDULO

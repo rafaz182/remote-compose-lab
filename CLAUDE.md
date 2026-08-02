@@ -85,7 +85,22 @@ HTTP 200, log limpo). Não repita:
 
 **Técnica de depuração que funcionou:** quando não há erro, construa um
 controle. Gere o mesmo conteúdo pelo caminho que funciona (no aparelho),
-coloque lado a lado, e compare `documento.stats`.
+coloque lado a lado, e compare `documento.stats`. Detalhado em
+`docs/04-depuracao-do-backend.md`.
+
+## Ferramentas de investigação
+
+```powershell
+.\gradlew.bat :server:runSonda      # varre apiLevel x profileMask
+.\gradlew.bat :server:runDissecar   # tabela de opcodes + hex dump + diferencial
+```
+
+`runDissecar` é a mais útil: imprime as 172 operações do formato (lidas por
+reflexão, nunca defasadas), dumps hexadecimais anotados, e **análise
+diferencial** — gera pares de documentos que diferem em um parâmetro e mostra
+quais bytes mudaram. Foi como provamos onde ficam largura e altura, que a
+densidade não é gravada, e que cor é serializada como quatro floats.
+Ver `docs/05-lendo-os-bytes.md`.
 
 ## Como validar
 

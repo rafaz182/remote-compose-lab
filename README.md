@@ -60,7 +60,9 @@ Mais aulas vêm por aí — o rumo é combinado a cada passo.
 - [`docs/00-referencias.md`](docs/00-referencias.md) — todas as fontes, e os comandos para verificar tudo você mesmo.
 - [`docs/01-a-ideia.md`](docs/01-a-ideia.md) — por que um formato binário, e não JSON.
 - [`docs/02-anatomia-dos-artefatos.md`](docs/02-anatomia-dos-artefatos.md) — os 11 artefatos em detalhe, grafo de dependências, e o que o empacotamento decide sobre plataformas.
-- [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — os erros reais que enfrentamos montando este projeto.
+- [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — os erros de build reais que enfrentamos.
+- [`docs/04-depuracao-do-backend.md`](docs/04-depuracao-do-backend.md) — cinco problemas, um sintoma só, e a metodologia de depuração sem mensagem de erro.
+- [`docs/05-lendo-os-bytes.md`](docs/05-lendo-os-bytes.md) — dissecando o formato binário byte a byte, com análise diferencial.
 
 ## Front × Back
 
