@@ -25,4 +25,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "compose-remote-lab"
+
+// :app    — Android. Cria documentos E os renderiza (player).
+// :server — JVM puro. Cria documentos e os serve por HTTP. NÃO renderiza nada,
+//           porque não existe player fora do Android.
 include(":app")
+include(":server")

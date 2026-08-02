@@ -92,4 +92,8 @@ dependencies {
     implementation(libs.androidx.remote.creation.core)
     // TOOLING: @Preview de conteúdo Remote Compose no Android Studio
     implementation(libs.androidx.remote.tooling.preview)
+
+    // ---- Cliente HTTP, para buscar documentos no módulo :server ----
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
 }

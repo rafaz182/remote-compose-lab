@@ -21,6 +21,7 @@ agp = "9.3.1"                    # Android Gradle Plugin (estável mais recente)
 # (confirmado no POM do AGP), logo:
 kotlin = "2.2.10"
 composeBom = "2026.06.01"        # BOM do Jetpack Compose: alinha todas as versões do Compose
+ktor = "3.5.2"                   # backend que gera e serve os documentos
 
 # --- Remote Compose (o objeto de estudo deste projeto) ---
 # ATENÇÃO: alpha. A API muda entre versões. Se algo quebrar ao subir a versão,
@@ -52,6 +53,11 @@ androidx-remote-creation-compose = { group = "androidx.compose.remote", name = "
 #     É o que um BACKEND usaria para gerar documentos. Incluímos para estudo.
 androidx-remote-creation-core = { group = "androidx.compose.remote", name = "remote-creation-core", version.ref = "remoteCompose" }
 
+#     remote-creation-jvm é o plugue de plataforma para JVM: são só 6 classes
+#     (19 KB), mas é o que torna o backend possível. Sem ele, o creation-core
+#     não sabe desenhar path nem carregar imagem fora do Android.
+androidx-remote-creation-jvm = { group = "androidx.compose.remote", name = "remote-creation-jvm", version.ref = "remoteCompose" }
+
 # [3] PLAYER — quem LÊ e RENDERIZA o documento. AAR, só Android.
 androidx-remote-player-compose = { group = "androidx.compose.remote", name = "remote-player-compose", version.ref = "remoteCompose" }
 androidx-remote-player-core = { group = "androidx.compose.remote", name = "remote-player-core", version.ref = "remoteCompose" }
@@ -71,6 +77,21 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
+# ---------------------------------------------------------------------------
+# Backend (módulo :server) — JVM puro, sem nada de Android.
+# ---------------------------------------------------------------------------
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
+ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-call-logging = { group = "io.ktor", name = "ktor-server-call-logging", version.ref = "ktor" }
+ktor-server-cors = { group = "io.ktor", name = "ktor-server-cors", version.ref = "ktor" }
+logback = { group = "ch.qos.logback", name = "logback-classic", version = "1.5.19" }
+
+# Cliente HTTP do app, para buscar os documentos no :server.
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -80,3 +101,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 # Continua necessário mesmo com o Kotlin embutido do AGP 9. Versão amarrada à
 # do Kotlin embutido (2.2.10) — ver comentário em [versions].
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+# O Kotlin embutido do AGP só vale para módulos ANDROID. Um módulo JVM puro
+# (o :server) precisa do plugin kotlin-jvm normal, na mesma versão.
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

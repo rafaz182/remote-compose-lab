@@ -10,4 +10,16 @@
 // desprevenida, porque quase todo tutorial na internet é pré-AGP 9.
 plugins {
     alias(libs.plugins.android.application) apply false
+
+    // Estes dois existem por causa do módulo :server, que é JVM puro.
+    //
+    // PEGADINHA: o AGP 9 coloca o Kotlin Gradle Plugin no classpath da build
+    // SEM versão declarada. Se o :server pedisse `alias(libs.plugins.kotlin.jvm)`
+    // direto, o Gradle recusaria com:
+    //   "the plugin is already on the classpath with an unknown version,
+    //    so compatibility cannot be checked"
+    // Declarar aqui na raiz, com apply false, resolve a versão uma única vez
+    // para o build inteiro — e aí o :server pode aplicá-lo sem drama.
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }

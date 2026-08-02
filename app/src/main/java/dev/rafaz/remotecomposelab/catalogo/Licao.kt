@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import dev.rafaz.remotecomposelab.licoes.L01OlaRemoteCompose
 import dev.rafaz.remotecomposelab.licoes.L02ODocumentoEOProduto
 import dev.rafaz.remotecomposelab.licoes.L03PorQueUmModifierParalelo
+import dev.rafaz.remotecomposelab.licoes.L04FrontXBack
 
 /**
  * Uma aula do laboratório.
@@ -40,5 +41,11 @@ val LICOES: List<Licao> = listOf(
         titulo = "Por que um Modifier paralelo?",
         resumo = "A pergunta que incomoda todo mundo — e a resposta que explica a lib.",
         conteudo = { L03PorQueUmModifierParalelo() },
+    ),
+    Licao(
+        numero = 4,
+        titulo = "Front × Back de verdade",
+        resumo = "Um Ktor em JVM pura gera a tela e entrega por HTTP. Rede real.",
+        conteudo = { L04FrontXBack() },
     ),
 )

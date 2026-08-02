@@ -59,9 +59,33 @@ app/src/main/java/dev/rafaz/remotecomposelab/
 ├── MainActivity.kt        # entrada; hospeda o catálogo
 ├── catalogo/              # modelo das aulas, lista e casca de cada aula
 ├── ui/                    # tema e componentes didáticos reutilizáveis
+├── remoto/                # grava documentos e busca no :server
 └── licoes/                # uma aula por arquivo, L01..Lxx
+server/src/main/kotlin/    # Ktor + geração de documentos em JVM pura
+server/src/main/java/      # PonteRc.java — contorna um `internal` do Kotlin
 docs/                      # texto longo: teoria que não cabe em comentário
 ```
+
+## Gerar documentos no backend (JVM pura) — o que já sabemos
+
+Custou quatro armadilhas seguidas, todas com o mesmo sintoma (tela em branco,
+HTTP 200, log limpo). Não repita:
+
+1. `Profile` precisa de `apiLevel >= 6`. Não há constante pública; descobrimos
+   varrendo (ver `server/.../Sonda.kt`).
+2. **Não** envolva o conteúdo em `RcRoot { }` se usar `createRcBuffer` — ele já
+   cria a raiz. Duas raízes ⇒ documento 0×0.
+3. O tamanho vem do `CreationDisplayInfo` passado ao `RemoteComposeWriter`,
+   **não** de `HTag(Header.DOC_WIDTH, ...)`. Como `createRcBuffer` não deixa
+   informá-lo, construímos o writer à mão.
+4. `RcScopeImpl` é `internal` no Kotlin mas `public` no bytecode — por isso a
+   ponte em Java.
+5. Use `writer.encodeToByteArray()`, nunca `writer.buffer()` — este devolve o
+   array de apoio inteiro (1 MiB de zeros).
+
+**Técnica de depuração que funcionou:** quando não há erro, construa um
+controle. Gere o mesmo conteúdo pelo caminho que funciona (no aparelho),
+coloque lado a lado, e compare `documento.stats`.
 
 ## Como validar
 

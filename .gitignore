@@ -1,11 +1,17 @@
 *.iml
 .gradle/
-/local.properties
 /.idea/
 .DS_Store
-/build
-/app/build
-/captures
 .externalNativeBuild
 .cxx
+
+# Saídas de build de QUALQUER módulo.
+# Antes daqui havia apenas "/build" e "/app/build", e o :server escapou —
+# 130 arquivos de cache do Kotlin quase entraram no primeiro commit dele.
+build/
+
+# Caminho do Android SDK, específico da máquina.
 local.properties
+
+# Log de execução do :server.
+server.log

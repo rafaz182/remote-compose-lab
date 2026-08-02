@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Desde o Android 9 (API 28) o tráfego HTTP em texto puro é bloqueado por
+  padrão. Nosso servidor de estudo roda em http://10.0.2.2:8080, sem TLS.
+
+  Em vez de liberar cleartext no app inteiro (`usesCleartextTraffic="true"`),
+  liberamos apenas os dois hosts de desenvolvimento. É a diferença entre
+  "abri uma exceção" e "desliguei a proteção".
+
+  10.0.2.2  -> como o EMULADOR enxerga o localhost da sua máquina.
+               Do lado de dentro do emulador, "localhost" é o próprio
+               emulador — por isso existe esse IP mágico.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
