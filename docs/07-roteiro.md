@@ -104,14 +104,59 @@ constante (`setValue(contador, 0f)`). Isolado assim:
 **❓ Hora não bate.** O aparelho marcava `04:15:03` e o documento desenhava
 `4:54:52`. A hora coincide, minutos e segundos não. Ainda sem explicação.
 
-**Próximos passos para fechar o item:**
-1. Dissecar o documento do contador e conferir se o opcode
-   `VALUE_FLOAT_CHANGE_ACTION` (222) foi realmente gravado. Se não estiver lá,
-   o problema é na escrita; se estiver, é na execução.
-2. Testar o caminho alternativo: `StateUpdater` do `player-core.state`, que
-   permite ao **app** alterar um valor nomeado de fora. Se esse funcionar e o
-   `setValue` não, a diferença aponta o culpado.
-3. Investigar se `named()` quebra a ligação entre o valor e a ação.
+### O que a investigação apurou depois
+
+**Reprodução mínima construída** (tela `teste-estado` em `TelasComEstado.kt`):
+um valor, um botão, sem `named()`, sem aritmética, sem Row nem weight.
+
+```kotlin
+val valor = PonteRc.valorFloat(writer, 1f)
+Text(createTextFromFloat(valor, 3, 0, 0), …)          // mostra 1  ✅
+Box(Modifier….onClick { setValue(valor, 99f) })        // toque não muda nada ❌
+```
+
+**Continua 1.** Isso elimina `named()` e a aritmética como suspeitos.
+
+**As operações estão sendo gravadas.** Comparando `doc.stats` de um documento
+que funciona com o que não funciona:
+
+```
+[interativo] 38 ops : … TextData 6 ; BoxLayout 8 ; TextLayout 6
+[contador]   44 ops : … TextFromFloat 1 ; NamedVariable 1 ; FloatExpression 2 …
+```
+
+`FloatExpression : 2` são exatamente as duas expressões dos botões `+1` e `−1`.
+Ou seja, o servidor **escreveu** o que deveria. O problema está na execução.
+
+**A hipótese que sobrou.** Repare no contraste:
+
+| Caminho | Resultado |
+|---|---|
+| valor mudando pelo **tempo** (`seconds()`) → `TextFromFloat` redesenha | ✅ funciona |
+| valor mudando por **toque** (`setValue`) → `TextFromFloat` redesenha | ❌ não funciona |
+| toque disparando `hostAction` → app recebe | ✅ funciona |
+
+O `TextFromFloat` reavalia (o relógio prova) e o clique é entregue (o
+`hostAction` prova). O que não acontece é a **execução da ação de mudança de
+valor dentro do documento**.
+
+Isso aponta para: `remote-player-compose` talvez entregue ações ao hospedeiro
+mas não execute mutação de estado interno. É hipótese, não fato.
+
+**Próximos passos, se valer o investimento:**
+1. Trocar o player: usar `remote-player-view` (a `View` clássica) em vez do
+   player de Compose, com o mesmo documento. Se funcionar lá, o defeito está
+   na camada Compose e vira **relato de bug para o AndroidX** — com a repro
+   mínima já pronta.
+2. Testar `StateUpdater` (`player-core.state`): permite ao **app** alterar um
+   valor nomeado de fora. Se funcionar, existe caminho alternativo utilizável.
+3. Conferir no dump binário se o opcode `VALUE_FLOAT_CHANGE_ACTION` (222)
+   aparece — `doc.stats` não lista ações, então a checagem tem que ser no byte.
+
+> **Valor de artigo:** este é o tipo de achado que ninguém publicou. Uma repro
+> mínima de 615 bytes, com hipótese formulada e caminhos de verificação, é
+> material de issue no AndroidX — e issue aceita em projeto do Google é uma
+> linha muito boa de portfólio.
 
 Contexto original do item:
 

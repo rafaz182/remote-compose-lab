@@ -73,7 +73,16 @@ fun L05GaleriaDoServidor() {
                 .onSuccess { bytes ->
                     tamanho = bytes.size
                     selecionada = tela
-                    documento = RemoteDocument(bytes)
+                    val doc = RemoteDocument(bytes)
+                    // Diagnóstico: `stats` nomeia as operações presentes no
+                    // documento. É a forma mais direta de responder "o que o
+                    // servidor gravou de verdade aqui dentro?".
+                    android.util.Log.i(
+                        "RemoteComposeLab",
+                        "[${tela.id}] ${doc.width}x${doc.height} :: " +
+                            doc.stats.joinToString(" ; "),
+                    )
+                    documento = doc
                     acoesRecebidas.clear()
                     erro = null
                 }

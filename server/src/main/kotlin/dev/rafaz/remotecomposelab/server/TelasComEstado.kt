@@ -137,6 +137,51 @@ fun telaContador(): ByteArray = documento(largura = 1080, altura = 520) { writer
 }
 
 // ═════════════════════════════════════════════════════════════════
+// 1b. REPRODUÇÃO MÍNIMA — para isolar por que `setValue` não funciona
+// ═════════════════════════════════════════════════════════════════
+
+/**
+ * A menor tela possível que exercita `setValue`.
+ *
+ * Existe só como instrumento de diagnóstico. O contador não funciona, e há
+ * três suspeitos: `named()`, a aritmética (`1f + contador`) e o próprio
+ * `setValue`. Esta tela remove os dois primeiros:
+ *
+ *   - sem `named()`
+ *   - sem expressão: atribui a constante 99
+ *   - um único botão, sem Row nem weight
+ *
+ * Se o número virar 99 aqui, o problema está em `named()` ou na aritmética.
+ * Se continuar 1, o problema é o `setValue` em si.
+ *
+ * É a mesma disciplina de sempre: quando algo não funciona e não há erro,
+ * reduza até sobrar uma variável só.
+ */
+fun telaTesteEstado(): ByteArray = documento(largura = 1080, altura = 380) { writer ->
+    val valor = PonteRc.valorFloat(writer, 1f)
+
+    Column(modifier = Modifier.fillMaxWidth().background(FUNDO_E).padding(28f)) {
+        Text("REPRODUÇÃO MÍNIMA", fontSize = RcSp(16f), color = ACENTO_E)
+        Text("sem named(), sem aritmética", fontSize = RcSp(16f), color = FRACO_E)
+        Box(modifier = Modifier.height(16f)) {}
+
+        Text(createTextFromFloat(valor, 3, 0, 0), fontSize = RcSp(72f), color = CIANO_E)
+
+        Box(modifier = Modifier.height(16f)) {}
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(VERDE_E)
+                .clip(RoundedRectShape(14f, 14f, 14f, 14f))
+                .padding(22f)
+                .onClick { setValue(valor, 99f) },
+        ) {
+            Text("virar 99", fontSize = RcSp(26f), color = 0xFF14141B.toInt())
+        }
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════
 // 2. RELÓGIO — o documento lê o tempo sozinho
 // ═════════════════════════════════════════════════════════════════
 

@@ -146,6 +146,10 @@ private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
         TelaDto("relogio", "Relógio", "o documento lê o tempo e recalcula sozinho", 460) to
             { telaRelogio() }
         ),
+    "teste-estado" to (
+        TelaDto("teste-estado", "⚙ Repro mínima", "diagnóstico: por que setValue não funciona", 380) to
+            { telaTesteEstado() }
+        ),
 )
 
 fun main() {
