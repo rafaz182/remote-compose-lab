@@ -8,8 +8,29 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
 
 /**
- * Sonda descartável: descobre qual `apiLevel` o formato aceita e prova que dá
- * para gerar um documento Remote Compose em JVM pura, sem Android no classpath.
+ * SONDA — o que é isso?
+ *
+ * "Sonda" aqui tem o mesmo sentido de sonda espacial ou sonda de perfuração:
+ * um programinha descartável que a gente **manda para dentro de território
+ * desconhecido só para trazer informação de volta**. Ela não faz parte do
+ * produto; existe para responder uma pergunta.
+ *
+ * A pergunta desta sonda era: *"qual `apiLevel` o formato aceita?"*
+ *
+ * Não havia constante pública, não havia documentação, não havia exemplo. Em
+ * vez de ficar lendo o código da biblioteca tentando deduzir, escrevemos um
+ * laço que **testa todos os valores plausíveis e reporta quais funcionam**.
+ * A resposta apareceu em segundos: 6 é o piso.
+ *
+ * Por que ela ficou no repositório em vez de ser apagada?
+ *
+ * Porque a pergunta vai voltar. Quando a biblioteca subir de versão, rodar a
+ * sonda de novo responde na hora se o piso mudou. Uma sonda é barata de
+ * escrever e continua rendendo depois — é o oposto de uma investigação manual,
+ * que você tem que refazer do zero toda vez.
+ *
+ * Este arquivo é a demonstração de uma técnica de depuração, não código de
+ * produção. A técnica está explicada em `docs/04-depuracao-do-backend.md`.
  *
  * Rode com:  .\gradlew.bat :server:runSonda
  */

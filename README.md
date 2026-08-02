@@ -63,6 +63,8 @@ Mais aulas vêm por aí — o rumo é combinado a cada passo.
 - [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — os erros de build reais que enfrentamos.
 - [`docs/04-depuracao-do-backend.md`](docs/04-depuracao-do-backend.md) — cinco problemas, um sintoma só, e a metodologia de depuração sem mensagem de erro.
 - [`docs/05-lendo-os-bytes.md`](docs/05-lendo-os-bytes.md) — dissecando o formato binário byte a byte, com análise diferencial.
+- [`docs/06-arquitetura-do-server.md`](docs/06-arquitetura-do-server.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
+- [`docs/07-roteiro.md`](docs/07-roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
 
 ## Front × Back
 
