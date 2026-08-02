@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      remote-creation-compose depende de androidx.appcompat, e o player infla
+      Views do Android por baixo dos panos. Por isso o tema precisa herdar de
+      um tema AppCompat/MaterialComponents — senão o app crasha ao inflar.
+      Este é um detalhe prático que a documentação não destaca.
+    -->
+    <style name="Theme.RemoteComposeLab" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>

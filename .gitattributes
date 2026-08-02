@@ -1,0 +1,13 @@
+# Normaliza fim de linha no repositório (LF), deixando o checkout local livre.
+* text=auto
+
+# O gradlew é executado por /bin/sh. Se ele for para o repo com CRLF, quem
+# clonar no Linux ou macOS recebe "bad interpreter: No such file or directory".
+# Este é um dos erros mais chatos de diagnosticar em projeto criado no Windows.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Binários: não tocar.
+*.jar binary
+*.png binary
+*.apk binary

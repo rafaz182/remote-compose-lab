@@ -1,0 +1,82 @@
+##
+## Catálogo de versões (Gradle Version Catalog).
+##
+## Por que isso existe: em vez de espalhar strings de versão por todos os
+## build.gradle.kts, centralizamos aqui. O Gradle gera um acessor tipado
+## (libs.androidx.remote.creation.compose) que o IDE autocompleta.
+##
+## Todas as versões abaixo foram verificadas no Google Maven / Maven Central
+## em agosto de 2026 — não são chutes.
+##
+
+[versions]
+# --- Toolchain ---
+agp = "9.3.1"                    # Android Gradle Plugin (estável mais recente)
+# Desde o AGP 9.0 o Kotlin Gradle Plugin vem EMBUTIDO no AGP — por isso NÃO
+# declaramos o plugin 'org.jetbrains.kotlin.android' (faz a build falhar).
+#
+# Mas há uma pegadinha: o plugin do COMPILADOR DO COMPOSE continua obrigatório
+# e precisa ter a MESMA versão do Kotlin embutido, senão a build quebra com
+# "Compose Compiler Gradle plugin is required". O AGP 9.3.1 embute KGP 2.2.10
+# (confirmado no POM do AGP), logo:
+kotlin = "2.2.10"
+composeBom = "2026.06.01"        # BOM do Jetpack Compose: alinha todas as versões do Compose
+
+# --- Remote Compose (o objeto de estudo deste projeto) ---
+# ATENÇÃO: alpha. A API muda entre versões. Se algo quebrar ao subir a versão,
+# consulte https://developer.android.com/jetpack/androidx/releases/compose-remote
+remoteCompose = "1.0.0-alpha16"  # publicada em 29/07/2026
+
+# --- AndroidX comum ---
+coreKtx = "1.18.0"
+lifecycle = "2.10.0"
+activityCompose = "1.13.0"
+
+[libraries]
+# ---------------------------------------------------------------------------
+# REMOTE COMPOSE — divide-se em três famílias. Entender essa divisão é metade
+# do aprendizado, então preste atenção nos comentários.
+# ---------------------------------------------------------------------------
+
+# [1] CORE — o formato do documento em si. JAR puro, roda em qualquer JVM.
+#     Contém CoreDocument, WireBuffer, PaintContext (abstrato) e o motor de
+#     layout. É a "especificação executável" do formato.
+androidx-remote-core = { group = "androidx.compose.remote", name = "remote-core", version.ref = "remoteCompose" }
+
+# [2] CREATION — quem ESCREVE o documento.
+#     remote-creation-compose é o que usaremos: dá a DSL @Composable
+#     (RemoteColumn, RemoteText, RemoteModifier...). É AAR — só Android.
+androidx-remote-creation-compose = { group = "androidx.compose.remote", name = "remote-creation-compose", version.ref = "remoteCompose" }
+#     remote-creation-core é JAR puro: a mesma capacidade de escrita, porém com
+#     uma DSL imperativa (RemoteComposeWriter) sem depender do Compose runtime.
+#     É o que um BACKEND usaria para gerar documentos. Incluímos para estudo.
+androidx-remote-creation-core = { group = "androidx.compose.remote", name = "remote-creation-core", version.ref = "remoteCompose" }
+
+# [3] PLAYER — quem LÊ e RENDERIZA o documento. AAR, só Android.
+androidx-remote-player-compose = { group = "androidx.compose.remote", name = "remote-player-compose", version.ref = "remoteCompose" }
+androidx-remote-player-core = { group = "androidx.compose.remote", name = "remote-player-core", version.ref = "remoteCompose" }
+
+# [4] TOOLING — @Preview para conteúdo Remote Compose dentro do Android Studio.
+androidx-remote-tooling-preview = { group = "androidx.compose.remote", name = "remote-tooling-preview", version.ref = "remoteCompose" }
+
+# ---------------------------------------------------------------------------
+# Compose "normal" (o que você já conhece) — usado para a casca do app:
+# a navegação entre as aulas, os textos explicativos, os botões.
+# ---------------------------------------------------------------------------
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+# Continua necessário mesmo com o Kotlin embutido do AGP 9. Versão amarrada à
+# do Kotlin embutido (2.2.10) — ver comentário em [versions].
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
