@@ -143,20 +143,55 @@ valor dentro do documento**.
 Isso aponta para: `remote-player-compose` talvez entregue ações ao hospedeiro
 mas não execute mutação de estado interno. É hipótese, não fato.
 
-**Próximos passos, se valer o investimento:**
-1. Trocar o player: usar `remote-player-view` (a `View` clássica) em vez do
-   player de Compose, com o mesmo documento. Se funcionar lá, o defeito está
-   na camada Compose e vira **relato de bug para o AndroidX** — com a repro
-   mínima já pronta.
-2. Testar `StateUpdater` (`player-core.state`): permite ao **app** alterar um
-   valor nomeado de fora. Se funcionar, existe caminho alternativo utilizável.
-3. Conferir no dump binário se o opcode `VALUE_FLOAT_CHANGE_ACTION` (222)
-   aparece — `doc.stats` não lista ações, então a checagem tem que ser no byte.
+### O experimento dos dois players (Aula 06) — e a hipótese refutada
 
-> **Valor de artigo:** este é o tipo de achado que ninguém publicou. Uma repro
-> mínima de 615 bytes, com hipótese formulada e caminhos de verificação, é
-> material de issue no AndroidX — e issue aceita em projeto do Google é uma
-> linha muito boa de portfólio.
+Montamos o mesmo documento, com os mesmos bytes, em **três** caminhos
+diferentes de mutação:
+
+| Caminho | Resultado |
+|---|---|
+| botão no documento, executado pelo **player de Compose** | ❌ nada |
+| botão no documento, executado pelo **player de View** | ❌ nada |
+| `StateUpdater.setUserLocalFloat("contador", 99f)` a partir do **app** | ❌ nada, e sem exceção |
+
+**A hipótese anterior está refutada.** Não é o invólucro de Compose: os dois
+players se comportam de forma idêntica, então a diferença entre eles não pode
+ser a causa. Registro isso aqui porque uma hipótese descartada com evidência
+vale tanto quanto uma confirmada — e porque eu a tinha anunciado com confiança
+demais.
+
+**A suspeita que sobra é mais mundana, e provavelmente correta: o valor não
+está sendo registrado com o nome/domínio que esses mecanismos procuram.**
+
+A pista está na própria API:
+
+```java
+public interface StateUpdater {
+    void setUserLocalFloat(String, Float);
+    static String getUserDomainString(String);   // ← nomes são qualificados
+}
+```
+
+A existência de `getUserDomainString` sugere que nomes vivem em **domínios**
+(há uma classe `RemoteDomains` em `player-core.state`), e que o `named("contador")`
+do lado servidor talvez não caia no domínio `user` que o `setUserLocalFloat`
+consulta.
+
+Ou seja: a suspeita passou da biblioteca para o **nosso código**. Menos
+glamouroso e mais provável.
+
+**Próximos passos, em ordem de custo:**
+1. Usar `StateUpdater.getUserDomainString("contador")` como chave, em vez do
+   nome cru.
+2. Investigar `RemoteDomains` e descobrir em que domínio `named()` registra.
+3. Procurar no dump binário o opcode `VALUE_FLOAT_CHANGE_ACTION` (222) —
+   `doc.stats` não lista ações, então a checagem tem que ser byte a byte.
+4. Testar `RcFloat.flush()`, que existe na API e cujo papel não investigamos.
+
+> **Nota de método:** o experimento não deu o resultado que eu esperava, e
+> mesmo assim foi o mais produtivo até agora — eliminou uma hipótese inteira
+> em minutos e apontou a próxima. Experimento bom não é o que confirma; é o
+> que separa.
 
 Contexto original do item:
 

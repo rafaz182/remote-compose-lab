@@ -90,6 +90,9 @@ dependencies {
     // PLAYER: LÊ e RENDERIZA o documento
     implementation(libs.androidx.remote.player.compose)
     implementation(libs.androidx.remote.player.core)
+    // Usada na Aula 06 para rodar o mesmo documento nos DOIS players e
+    // comparar o comportamento.
+    implementation(libs.androidx.remote.player.view)
     // CORE: o formato em si (CoreDocument, WireBuffer) — usaremos para
     // dissecar os bytes na aula final
     implementation(libs.androidx.remote.core)

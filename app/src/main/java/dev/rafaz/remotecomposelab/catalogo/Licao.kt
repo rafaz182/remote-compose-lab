@@ -6,6 +6,7 @@ import dev.rafaz.remotecomposelab.licoes.L02ODocumentoEOProduto
 import dev.rafaz.remotecomposelab.licoes.L03PorQueUmModifierParalelo
 import dev.rafaz.remotecomposelab.licoes.L04FrontXBack
 import dev.rafaz.remotecomposelab.licoes.L05GaleriaDoServidor
+import dev.rafaz.remotecomposelab.licoes.L06DoisPlayers
 
 /**
  * Uma aula do laboratório.
@@ -54,5 +55,11 @@ val LICOES: List<Licao> = listOf(
         titulo = "A galeria do servidor",
         resumo = "Cinco telas ricas desenhadas no backend — e eventos voltando ao app.",
         conteudo = { L05GaleriaDoServidor() },
+    ),
+    Licao(
+        numero = 6,
+        titulo = "O experimento dos dois players",
+        resumo = "Mesmo documento, dois executores — a técnica que isola um defeito.",
+        conteudo = { L06DoisPlayers() },
     ),
 )

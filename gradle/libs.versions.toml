@@ -61,6 +61,10 @@ androidx-remote-creation-jvm = { group = "androidx.compose.remote", name = "remo
 # [3] PLAYER — quem LÊ e RENDERIZA o documento. AAR, só Android.
 androidx-remote-player-compose = { group = "androidx.compose.remote", name = "remote-player-compose", version.ref = "remoteCompose" }
 androidx-remote-player-core = { group = "androidx.compose.remote", name = "remote-player-core", version.ref = "remoteCompose" }
+# A View clássica, que é a camada de baixo do player de Compose. Ela vem junto
+# como dependência transitiva, mas `implementation` não a expõe em tempo de
+# COMPILAÇÃO — para usá-la direto no código é preciso declarar.
+androidx-remote-player-view = { group = "androidx.compose.remote", name = "remote-player-view", version.ref = "remoteCompose" }
 
 # [4] TOOLING — @Preview para conteúdo Remote Compose dentro do Android Studio.
 androidx-remote-tooling-preview = { group = "androidx.compose.remote", name = "remote-tooling-preview", version.ref = "remoteCompose" }
