@@ -1,4 +1,37 @@
-# Estado remoto: a investigação que ainda não fechou
+# Estado remoto: seis hipóteses até achar o `flush()`
+
+> **RESOLVIDO EM PARTE — 03/08/2026.** Era `RcFloat.flush()`. Um método público,
+> sem uma linha de documentação, que precisa ser chamado para o valor
+> efetivamente ser **escrito no documento**. Sem ele, o `setValue` mirava um
+> espaço que não existia no buffer — daí o sintoma perfeito: sem erro, sem
+> efeito.
+>
+> ```kotlin
+> val value = RcBridge.floatValue(writer, 1f).flush()
+> //                                          ^^^^^^^
+> ```
+>
+> **A pista que confirmou antes de abrir o app:** o documento pulou de 615 para
+> **628 bytes**. Treze bytes a mais, só por chamar `flush()`. Alguma coisa
+> passou a ser gravada que antes não era. Tamanho de arquivo como sinal — a
+> mesma técnica que pegou o `writer.buffer()` devolvendo 1 MiB.
+>
+> **O que ainda não fechou:** com `flush()`, `setValue` com **constante**
+> funciona sempre (o botão "zerar", e o `virar 99` da repro mínima). Mas
+> `setValue` com **expressão** (`1f + counter`) aplica **uma vez e congela**:
+> o contador vai de 7 para 8 e para. A leitura mais provável é que `flush()`
+> avalia a expressão no momento da escrita, transformando `1f + counter` na
+> constante 8 — e todo toque re-atribui 8.
+>
+> Ou seja: o problema deixou de ser "estado remoto não funciona" e virou
+> "expressão deixa de ser viva depois do flush". Problema menor e muito mais
+> preciso.
+
+O texto abaixo é o registro da investigação, na ordem em que aconteceu. Vale
+ler mesmo sabendo o final — o valor está no método, não na resposta.
+
+---
+
 
 Terceiro capítulo do diário. Os dois primeiros ([montando o
 projeto](01-montando-o-projeto.md) e [backend em JVM

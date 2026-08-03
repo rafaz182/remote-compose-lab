@@ -97,7 +97,16 @@ fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer -
     // Existem dois domínios (enum `RemoteDomains`): USER e SYSTEM. Um valor que
     // o app hospedeiro deve poder alterar de fora precisa nascer no domínio
     // USER.
-    val counter = RcBridge.floatValue(writer, 7f).named("USER:contador")
+    // `.flush()` é o que faltava para o `setValue` funcionar — ver o diário.
+    //
+    // MAS atenção ao efeito colateral, medido: com flush, o botão "+1" leva o
+    // contador de 7 para 8 e PARA. Não acumula. A leitura mais provável é que
+    // `flush()` AVALIA a expressão no momento da escrita, então
+    // `1f + counter` virou a constante 8 — e todo toque re-atribui 8.
+    //
+    // O botão "zerar" (constante) funciona sempre, o que reforça a hipótese:
+    // o problema não é o `setValue`, é a expressão ter deixado de ser viva.
+    val counter = RcBridge.floatValue(writer, 7f).named("USER:contador").flush()
 
     Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
         Text("CONTADOR", fontSize = RcSp(16f), color = ACCENT_S)

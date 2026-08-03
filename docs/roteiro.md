@@ -72,7 +72,7 @@ uma *intent* do Android — ou seja, abrir outra tela, outro app. Isso levanta
 uma pergunta de segurança óbvia que vale um parágrafo em qualquer artigo sério:
 **o que acontece se o documento vier de uma fonte não confiável?**
 
-### B2. Estado remoto — ⚠️ PARCIAL, investigação em aberto
+### B2. Estado remoto — ✅ RESOLVIDO (com uma ressalva)
 
 Tentado nas Aulas 05 e 06 (telas `contador`, `relogio` e `teste-estado`).
 Resultado misto, e a parte que falhou virou capítulo próprio do diário.
