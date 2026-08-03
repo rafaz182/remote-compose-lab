@@ -158,18 +158,23 @@ Se você só for ler uma coisa de lá, leia a **tabela de decisão**: existem tr
 `Modifier` diferentes neste projeto, e saber qual usar quando resolve boa parte
 da confusão inicial.
 
-## Leia também
+## Documentação
 
-- [`docs/referencia/fontes.md`](docs/referencia/fontes.md) — todas as fontes, e os comandos para verificar tudo você mesmo.
-- [`docs/trilha/01-a-ideia.md`](docs/trilha/01-a-ideia.md) — por que um formato binário, e não JSON.
-- [`docs/referencia/artefatos.md`](docs/referencia/artefatos.md) — os 11 artefatos em detalhe, grafo de dependências, e o que o empacotamento decide sobre plataformas.
-- [`docs/diario/01-montando-o-projeto.md`](docs/diario/01-montando-o-projeto.md) — os erros de build reais que enfrentamos.
-- [`docs/diario/02-backend-em-jvm-pura.md`](docs/diario/02-backend-em-jvm-pura.md) — cinco problemas, um sintoma só, e a metodologia de depuração sem mensagem de erro.
-- [`docs/trilha/02-o-formato-por-dentro.md`](docs/trilha/02-o-formato-por-dentro.md) — dissecando o formato binário byte a byte, com análise diferencial.
-- [`docs/trilha/03-o-servidor.md`](docs/trilha/03-o-servidor.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
-- [`docs/roteiro.md`](docs/roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
-- [`docs/referencia/operando-o-emulador.md`](docs/referencia/operando-o-emulador.md) — instalar, tocar, fotografar e depurar o app pela linha de comando, com `adb`.
-- [`docs/referencia/classes-do-sdk.md`](docs/referencia/classes-do-sdk.md) — cada classe do SDK que usamos: o que faz, com quem conversa e onde estão as pegadinhas.
+Está organizada por **como se lê**, não por assunto — misturar os quatro
+gêneros era o que tornava a leitura confusa.
+
+**→ Comece pelo índice: [`docs/README.md`](docs/README.md)**
+
+| | Para quê |
+|---|---|
+| [`docs/trilha/`](docs/trilha/) | **Aprender** — três documentos, em ordem |
+| [`docs/referencia/`](docs/referencia/) | **Consultar** — classes do SDK, artefatos, `adb`, fontes |
+| [`docs/diario/`](docs/diario/) | **Acompanhar** — o que foi tentado, inclusive o que falhou |
+| [`docs/roteiro.md`](docs/roteiro.md) | **Planejar** — o que ainda dá para aprender |
+
+Se você tem duas horas e quer entender a tecnologia, leia a trilha na ordem.
+Se quer entender **como se investiga uma biblioteca sem documentação**, o
+diário vale mais.
 
 ## Front × Back
 
