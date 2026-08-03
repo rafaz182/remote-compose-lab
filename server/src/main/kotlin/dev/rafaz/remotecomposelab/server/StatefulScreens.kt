@@ -169,7 +169,16 @@ fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer -
  * reduza até sobrar uma variável só.
  */
 fun stateProbeScreen(): ByteArray = document(width = 1080, height = 380) { writer ->
-    val value = RcBridge.floatValue(writer, 1f)
+    // HIPÓTESE 6: `flush()`.
+    //
+    // `RcFloat` tem um método público `flush()` que devolve `RcFloat`, e nunca
+    // descobrimos o que ele faz — não há documentação. A classe também expõe
+    // `isEvaluated`, o que sugere que um valor pode existir em dois estados:
+    // montado em memória, e efetivamente ESCRITO no documento.
+    //
+    // Se for isso, o `setValue` estaria mirando um valor que nunca chegou ao
+    // buffer — o que explicaria perfeitamente o sintoma: sem erro, sem efeito.
+    val value = RcBridge.floatValue(writer, 1f).flush()
 
     Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
         Text("REPRODUÇÃO MÍNIMA", fontSize = RcSp(16f), color = ACCENT_S)
