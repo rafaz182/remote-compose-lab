@@ -22,14 +22,23 @@ Aquele `ByteArray` no meio é o ponto inteiro da tecnologia. Ele é um **documen
 binário autocontido**, com motor de layout e expressões próprias, que pode ser
 salvo, transmitido e executado por um processo que nunca viu o seu código.
 
+O `:server` deste repositório prova isso na prática: é um Ktor em **JVM pura**
+que desenha telas e as entrega por HTTP.
+
+```
+GET /documento/tela/produtos
+Content-Type: application/octet-stream
+2003 bytes
+```
+
+Não é JSON descrevendo uma tela. É a tela.
+
 ## Como rodar
 
 Pré-requisitos: JDK 17+, Android SDK com `platforms;android-37.1`, e um
 dispositivo/emulador com **API 29 ou superior**.
 
-### O caminho curto
-
-Precisa de **dois terminais**: um para o servidor, outro para o app.
+Precisa de **dois terminais**:
 
 ```powershell
 # terminal 1 — o backend (fica rodando)
@@ -39,72 +48,49 @@ Precisa de **dois terminais**: um para o servidor, outro para o app.
 .\gradlew.bat :app:installDebug
 ```
 
-Depois abra o app, vá na Aula 04 ou 05 e toque em carregar.
+Abra o app e vá na Aula 05. No Linux/macOS troque `.\gradlew.bat` por `./gradlew`.
 
-### Comandos, um por um
-
-| O que | Comando |
+| Comando | O que faz |
 |---|---|
-| Subir o servidor (porta 8080) | `.\gradlew.bat :server:run` |
-| Compilar o app | `.\gradlew.bat :app:assembleDebug` |
-| Compilar **e** instalar | `.\gradlew.bat :app:installDebug` |
-| Ver a tabela de opcodes e dumps hex | `.\gradlew.bat :server:runDissect` |
-| Descobrir o `apiLevel` aceito | `.\gradlew.bat :server:runProbe` |
-| Limpar tudo | `.\gradlew.bat clean` |
+| `:server:run` | sobe o backend na porta 8080 |
+| `:app:installDebug` | compila e instala o app |
+| `:server:runDissect` | tabela de opcodes + dump hexadecimal de documentos |
+| `:server:runProbe` | descobre qual `apiLevel` o formato aceita |
 
-No Linux/macOS troque `.\gradlew.bat` por `./gradlew`.
+Para subir o emulador sem abrir o Android Studio, instalar, tocar e tirar print
+pela linha de comando: [`docs/referencia/operando-o-emulador.md`](docs/referencia/operando-o-emulador.md).
 
-### Emulador pela linha de comando
+### Vendo a UI mudar sem recompilar
 
-Se preferir não abrir o Android Studio só para subir o emulador:
-
-```powershell
-# onde mora o SDK (ajuste se o seu estiver em outro lugar)
-$SDK = "$env:LOCALAPPDATA\Android\Sdk"
-
-# quais emuladores existem
-& "$SDK\emulator\emulator.exe" -list-avds
-
-# subir um deles (em segundo plano, janela minimizada)
-Start-Process "$SDK\emulator\emulator.exe" -ArgumentList "-avd","Pixel_9" -WindowStyle Minimized
-
-# esperar ficar pronto de verdade (não basta a janela aparecer)
-do { Start-Sleep 3 } until ((& "$SDK\platform-tools\adb.exe" shell getprop sys.boot_completed).Trim() -eq "1")
-
-# conferir
-& "$SDK\platform-tools\adb.exe" devices
-```
-
-### Testar o servidor sem o app
+Com o app aberto na Aula 04, mude a promoção pelo terminal:
 
 ```powershell
-# índice: lista todos os endpoints
-curl http://localhost:8080/
-
-# catálogo de telas (JSON)
-curl http://localhost:8080/telas
-
-# uma tela (bytes — só o tamanho interessa aqui)
-curl -s -o NUL -w "%{size_download} bytes`n" http://localhost:8080/documento/tela/produtos
-
-# mudar a promoção da Aula 04 em tempo real
-curl -X PUT http://localhost:8080/promocao -H "Content-Type: application/json" `
-  -d '{\"chamada\":\"Frete grátis\",\"descricao\":\"Hoje só\",\"preco\":\"R$ 0\"}'
-
-# desligar a promoção
 curl -X DELETE http://localhost:8080/promocao
 ```
+
+Toque em "Promoção" de novo. A interface muda — sem release, sem loja.
 
 ### Se der errado
 
 | Sintoma | Causa provável |
 |---|---|
-| App mostra "Falhou: Connection refused" | Servidor não está no ar, ou subiu em `localhost` em vez de `0.0.0.0` |
-| `No connected devices!` | Emulador caiu — veja a seção do emulador acima |
-| `ClassNotFoundException` ao rodar `:server:run` | Cache do Gradle desalinhado: `.\gradlew.bat :server:clean` e tente de novo |
-| App instala mas crasha ao abrir | Tema não-AppCompat (ver `res/values/themes.xml`) |
+| "Falhou: Connection refused" | servidor fora do ar, ou subiu em `localhost` em vez de `0.0.0.0` |
+| `No connected devices!` | emulador caiu |
+| `ClassNotFoundException` no `:server:run` | cache do Gradle desalinhado: `.\gradlew.bat :server:clean` |
+| app instala mas crasha ao abrir | tema não-AppCompat (ver `res/values/themes.xml`) |
 
-Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
+## Documentação
+
+**→ Comece pelo índice: [`docs/README.md`](docs/README.md)**
+
+Está organizada por **como se lê**: [`trilha/`](docs/trilha/) para aprender em
+ordem, [`referencia/`](docs/referencia/) para consultar, [`diario/`](docs/diario/)
+para acompanhar o que foi tentado — inclusive o que falhou — e
+[`roteiro.md`](docs/roteiro.md) para o que vem depois.
+
+Se você tem duas horas e quer entender a tecnologia, leia a trilha na ordem.
+Se quer entender **como se investiga uma biblioteca sem documentação**, o
+diário vale mais.
 
 ## Estrutura
 
@@ -115,8 +101,8 @@ Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 | `app/src/main/java/.../ui/` | Casca didática: palco, blocos de código, tema. Compose **comum**. |
 | `app/src/main/java/.../catalog/` | Lista de aulas e navegação. |
 | `server/src/main/kotlin/` | Ktor + geração de documentos em JVM pura. |
-| `server/src/main/java/` | `RcBridge.java` — três linhas que contornam um `internal` do Kotlin. |
-| `docs/` | Teoria longa, que não caberia num comentário. |
+| `server/src/main/java/` | `RcBridge.java` — contorna um `internal` do Kotlin. |
+| `docs/` | Trilha, referência e diário. |
 | `CLAUDE.md` | Contexto e regras do repositório para o agente. |
 
 ## Currículo
@@ -128,93 +114,23 @@ Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 5. **A galeria do servidor** — sete telas desenhadas no backend, e eventos voltando ao app.
 6. **O experimento dos dois players** — mesmo documento, dois executores; a técnica que isola um defeito.
 
-O que vem depois está mapeado em [`docs/roteiro.md`](docs/roteiro.md),
-derivado dos 172 opcodes do formato.
-
-## As classes do SDK
-
-A documentação gerada do `androidx.compose.remote` é escassa — nomes de método
-sem explicação e quase nenhum exemplo. Por isso mantemos um mapa próprio de
-**todas as classes que este projeto usa**, com o que cada uma faz, com quem
-conversa e quais pegadinhas tem:
-
-**→ [`docs/referencia/classes-do-sdk.md`](docs/referencia/classes-do-sdk.md)**
-
-Resumo do elenco principal:
-
-| Lado | Classe | Papel |
-|---|---|---|
-| servidor | `RemoteComposeWriter` | acumula operações e entrega os bytes |
-| servidor | `RcScope` | a DSL: `Column`, `Row`, `Text`, `Modifier` |
-| servidor | `RcFloat` | um **valor** dentro do documento (não é número — é fórmula) |
-| servidor | `CreationDisplayInfo` | tamanho de referência; **esquecer = tela em branco** |
-| servidor | `Profile` | capacidades do destino; exige `apiLevel ≥ 6` |
-| cliente | `RemoteDocument` | `ByteArray` → documento executável; expõe `stats` |
-| cliente | `RemoteComposePlayer` | o player (existe em duas versões: Compose e View) |
-| cliente | `captureSingleRemoteDocument` | grava documento a partir de `@Composable` |
-| cliente | `RemoteModifier` / `rdp` / `rsp` | os gêmeos graváveis de `Modifier` / `dp` / `sp` |
-
-Se você só for ler uma coisa de lá, leia a **tabela de decisão**: existem três
-`Modifier` diferentes neste projeto, e saber qual usar quando resolve boa parte
-da confusão inicial.
-
-## Documentação
-
-Está organizada por **como se lê**, não por assunto — misturar os quatro
-gêneros era o que tornava a leitura confusa.
-
-**→ Comece pelo índice: [`docs/README.md`](docs/README.md)**
-
-| | Para quê |
-|---|---|
-| [`docs/trilha/`](docs/trilha/) | **Aprender** — três documentos, em ordem |
-| [`docs/referencia/`](docs/referencia/) | **Consultar** — classes do SDK, artefatos, `adb`, fontes |
-| [`docs/diario/`](docs/diario/) | **Acompanhar** — o que foi tentado, inclusive o que falhou |
-| [`docs/roteiro.md`](docs/roteiro.md) | **Planejar** — o que ainda dá para aprender |
-
-Se você tem duas horas e quer entender a tecnologia, leia a trilha na ordem.
-Se quer entender **como se investiga uma biblioteca sem documentação**, o
-diário vale mais.
-
-## Front × Back
-
-O módulo `:server` é um Ktor em **JVM pura** que gera os documentos e os serve
-por HTTP. Ele depende de exatamente três artefatos — `remote-core`,
-`remote-creation-core` e `remote-creation-jvm` — e **nenhum deles é Android**.
-
-```
-GET /documento/boas-vindas?nome=Rafael
-Content-Type: application/octet-stream
-396 bytes
-```
-
-Não é JSON descrevendo uma tela. É a tela.
-
-```powershell
-.\gradlew.bat :server:run      # sobe o servidor na porta 8080
-```
-
-Com o app na Aula 04, mude a promoção pelo terminal e veja a interface mudar
-sem recompilar nada:
-
-```powershell
-curl -X DELETE http://localhost:8080/promocao
-```
-
-> Chegar até aqui custou quatro armadilhas seguidas, todas com o mesmo
-> sintoma: tela em branco, HTTP 200, log limpo. Estão documentadas uma a uma
-> em [`docs/diario/01-montando-o-projeto.md`](docs/diario/01-montando-o-projeto.md) — é o conteúdo
-> mais valioso deste repositório, porque não existe em nenhum outro lugar.
-
 ## O que este projeto NÃO tem
 
-- **Não há iOS nem Desktop**, e não haverá: a tecnologia não suporta
-  (ver [`docs/02`](docs/referencia/artefatos.md)).
+- **Não há iOS nem Desktop**, e não haverá: a tecnologia não suporta — não
+  existe um único `.klib` publicado
+  (ver [`docs/referencia/artefatos.md`](docs/referencia/artefatos.md)).
 - O "transporte" das Aulas 01–03 é **simulado** dentro do mesmo processo. Só a
-  Aula 04 usa rede de verdade.
+  Aula 04 em diante usa rede de verdade.
+- **Estado remoto ainda não funciona.** `setValue` e `StateUpdater` não surtem
+  efeito, e a investigação está em aberto —
+  [`docs/diario/03-estado-remoto.md`](docs/diario/03-estado-remoto.md).
 
 ## Estado da tecnologia
 
 `1.0.0-alpha16`, publicada em 29/07/2026. **Alpha de verdade**: a API muda entre
 versões (a alpha16 removeu operadores de comparação de `RemoteFloat`, a alpha13
 renomeou `RemoteBitmap`). Não use em produção ainda — use para se antecipar.
+
+Boa parte do que este repositório afirma foi apurada **nos artefatos**, não na
+documentação — que já nos enganou mais de uma vez. O `minSdk` real, por exemplo,
+é 29 e não 23. Ver [`docs/referencia/fontes.md`](docs/referencia/fontes.md).
