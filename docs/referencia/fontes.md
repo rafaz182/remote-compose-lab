@@ -63,7 +63,7 @@ aconteceu na primeira hora deste projeto.
 
 **A maior parte do que este repositório afirma foi verificada aqui, não em texto
 publicado.** Quando documentação e artefato discordaram, o artefato ganhou — e
-discordaram mais de uma vez (ver [`03-diario-de-bordo.md`](03-diario-de-bordo.md)).
+discordaram mais de uma vez (ver [`diario/01-montando-o-projeto.md`](../diario/01-montando-o-projeto.md)).
 
 Os comandos abaixo são reproduzíveis. Se você for escrever sobre a tecnologia,
 rode-os você mesmo em vez de citar este arquivo.

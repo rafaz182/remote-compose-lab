@@ -250,4 +250,4 @@ javap -public -classpath remote-core.jar androidx.compose.remote.core.PaintConte
 
 Guarde o hábito: **o artefato é a verdade, a documentação é a intenção.**
 Foi assim que descobrimos que o `minSdk` real é 29, e não 23 como as notas de
-versão afirmam — ver [`03-diario-de-bordo.md`](03-diario-de-bordo.md).
+versão afirmam — ver [`diario/01-montando-o-projeto.md`](../diario/01-montando-o-projeto.md).

@@ -130,11 +130,11 @@ CreationDisplayInfo(largura, altura, densidadeDpi)
 **Pegadinha que custou horas:** é **daqui** que sai o tamanho gravado no
 cabeçalho. Não de `HTag(Header.DOC_WIDTH, …)`, como parece natural. Um
 documento sem isso nasce 0×0 e renderiza uma tela em branco sem reclamar.
-Ver [`04-depuracao-do-backend.md`](04-depuracao-do-backend.md).
+Ver [`diario/02-backend-em-jvm-pura.md`](../diario/02-backend-em-jvm-pura.md).
 
 **Curiosidade medida:** a densidade **não** é gravada no documento — só
 largura e altura. Provado por análise diferencial em
-[`05-lendo-os-bytes.md`](05-lendo-os-bytes.md).
+[`trilha/02-o-formato-por-dentro.md`](../trilha/02-o-formato-por-dentro.md).
 
 ### `RemoteComposeWriter` 🟢
 `androidx.compose.remote.creation` · `remote-creation-core`
@@ -209,7 +209,7 @@ que oferece **duas coisas bem diferentes**:
 
 **Estado da arte no projeto:** `hostAction` funciona e está na Aula 05.
 `setValue` **não surtiu efeito** em nenhum dos dois players nem via
-`StateUpdater` — investigação aberta em [`07-roteiro.md`](07-roteiro.md).
+`StateUpdater` — investigação aberta em [`roteiro.md`](../roteiro.md).
 
 Existem também `onLongClick` e `onDoubleClick`, que não exercitamos.
 
@@ -442,7 +442,7 @@ player.stateUpdater.setUserLocalFloat("contador", 99f)
 **Estado no projeto:** chamamos, não deu exceção, e **o valor não mudou**. A
 pista: existe `StateUpdater.getUserDomainString(nome)`, sugerindo que nomes são
 qualificados por **domínio**, e que o `named()` do servidor talvez não caia no
-domínio `user`. Investigação aberta em [`07-roteiro.md`](07-roteiro.md).
+domínio `user`. Investigação aberta em [`roteiro.md`](../roteiro.md).
 
 ---
 
@@ -477,7 +477,7 @@ Invoke-WebRequest "$base/remote-creation-core/1.0.0-alpha16/remote-creation-core
 javap -public -classpath creation.jar androidx.compose.remote.creation.dsl.RcScope
 ```
 
-Detalhes em [`00-referencias.md`](00-referencias.md), seção 3.
+Detalhes em [`referencia/fontes.md`](../referencia/fontes.md), seção 3.
 
 E o truque mais rápido de todos: escreva a chamada errada de propósito e deixe
 o **compilador Kotlin** listar os candidatos. Foi assim que descobrimos a

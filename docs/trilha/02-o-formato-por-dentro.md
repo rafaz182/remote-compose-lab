@@ -393,7 +393,7 @@ que ele tomou:
 | Dimensões no cabeçalho | player sabe o tamanho antes de desenhar | esquecer = tela em branco muda |
 
 Aquela última linha é a que nos custou horas — veja
-[`04-depuracao-do-backend.md`](04-depuracao-do-backend.md). E é um erro de
+[`diario/02-backend-em-jvm-pura.md`](../diario/02-backend-em-jvm-pura.md). E é um erro de
 projeto do formato, não nosso: **um documento sem dimensão deveria se recusar a
 nascer.**
 

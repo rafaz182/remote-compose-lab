@@ -87,7 +87,7 @@ Nada disso é de graça, e vale enxergar os custos com clareza:
 - **É opaco.** Um JSON você abre num editor e entende. Um documento binário
   exige ferramenta. Depurar é mais difícil.
 - **É alpha.** A API muda entre versões, e muda de verdade.
-- **É Android-only, hoje.** Ver [`02-anatomia-dos-artefatos.md`](02-anatomia-dos-artefatos.md).
+- **É Android-only, hoje.** Ver [`referencia/artefatos.md`](../referencia/artefatos.md).
 - **É mais abstrato.** Você tem que aprender um segundo conjunto de tipos
   (`RemoteModifier`, `RemoteDp`, `RemoteFloat`) e entender por que ele existe.
 

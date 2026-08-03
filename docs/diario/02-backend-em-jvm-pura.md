@@ -348,4 +348,4 @@ Se você tirar só uma coisa desta página:
    lugar nenhum e foi o que virou o jogo.
 
 Para ir além da estatística e olhar os bytes de verdade, siga para
-**[`05-lendo-os-bytes.md`](05-lendo-os-bytes.md)**.
+**[`trilha/02-o-formato-por-dentro.md`](../trilha/02-o-formato-por-dentro.md)**.

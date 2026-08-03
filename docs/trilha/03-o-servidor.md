@@ -383,7 +383,7 @@ que diferem em um parâmetro só e mostra quais bytes mudaram.
 
 Foi assim que provamos onde ficam largura e altura, que a densidade não é
 gravada, e que cor vira quatro floats. Detalhado em
-[`05-lendo-os-bytes.md`](05-lendo-os-bytes.md).
+[`trilha/02-o-formato-por-dentro.md`](../trilha/02-o-formato-por-dentro.md).
 
 ---
 

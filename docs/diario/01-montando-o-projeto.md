@@ -132,7 +132,7 @@ Gerar documentos num servidor JVM rendeu mais cinco problemas — todos com o
 mesmo sintoma, e todos exigindo técnica de depuração de verdade em vez de
 leitura de código. Como aquilo é uma história inteira, ganhou arquivo próprio:
 
-**→ [`04-depuracao-do-backend.md`](04-depuracao-do-backend.md)**
+**→ [`diario/02-backend-em-jvm-pura.md`](../diario/02-backend-em-jvm-pura.md)**
 
 ## Moral
 

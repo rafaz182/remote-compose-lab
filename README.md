@@ -128,7 +128,7 @@ Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 5. **A galeria do servidor** — sete telas desenhadas no backend, e eventos voltando ao app.
 6. **O experimento dos dois players** — mesmo documento, dois executores; a técnica que isola um defeito.
 
-O que vem depois está mapeado em [`docs/07-roteiro.md`](docs/07-roteiro.md),
+O que vem depois está mapeado em [`docs/roteiro.md`](docs/roteiro.md),
 derivado dos 172 opcodes do formato.
 
 ## As classes do SDK
@@ -138,7 +138,7 @@ sem explicação e quase nenhum exemplo. Por isso mantemos um mapa próprio de
 **todas as classes que este projeto usa**, com o que cada uma faz, com quem
 conversa e quais pegadinhas tem:
 
-**→ [`docs/09-classes-do-sdk.md`](docs/09-classes-do-sdk.md)**
+**→ [`docs/referencia/classes-do-sdk.md`](docs/referencia/classes-do-sdk.md)**
 
 Resumo do elenco principal:
 
@@ -160,16 +160,16 @@ da confusão inicial.
 
 ## Leia também
 
-- [`docs/00-referencias.md`](docs/00-referencias.md) — todas as fontes, e os comandos para verificar tudo você mesmo.
-- [`docs/01-a-ideia.md`](docs/01-a-ideia.md) — por que um formato binário, e não JSON.
-- [`docs/02-anatomia-dos-artefatos.md`](docs/02-anatomia-dos-artefatos.md) — os 11 artefatos em detalhe, grafo de dependências, e o que o empacotamento decide sobre plataformas.
-- [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — os erros de build reais que enfrentamos.
-- [`docs/04-depuracao-do-backend.md`](docs/04-depuracao-do-backend.md) — cinco problemas, um sintoma só, e a metodologia de depuração sem mensagem de erro.
-- [`docs/05-lendo-os-bytes.md`](docs/05-lendo-os-bytes.md) — dissecando o formato binário byte a byte, com análise diferencial.
-- [`docs/06-arquitetura-do-server.md`](docs/06-arquitetura-do-server.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
-- [`docs/07-roteiro.md`](docs/07-roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
-- [`docs/08-operando-o-emulador.md`](docs/08-operando-o-emulador.md) — instalar, tocar, fotografar e depurar o app pela linha de comando, com `adb`.
-- [`docs/09-classes-do-sdk.md`](docs/09-classes-do-sdk.md) — cada classe do SDK que usamos: o que faz, com quem conversa e onde estão as pegadinhas.
+- [`docs/referencia/fontes.md`](docs/referencia/fontes.md) — todas as fontes, e os comandos para verificar tudo você mesmo.
+- [`docs/trilha/01-a-ideia.md`](docs/trilha/01-a-ideia.md) — por que um formato binário, e não JSON.
+- [`docs/referencia/artefatos.md`](docs/referencia/artefatos.md) — os 11 artefatos em detalhe, grafo de dependências, e o que o empacotamento decide sobre plataformas.
+- [`docs/diario/01-montando-o-projeto.md`](docs/diario/01-montando-o-projeto.md) — os erros de build reais que enfrentamos.
+- [`docs/diario/02-backend-em-jvm-pura.md`](docs/diario/02-backend-em-jvm-pura.md) — cinco problemas, um sintoma só, e a metodologia de depuração sem mensagem de erro.
+- [`docs/trilha/02-o-formato-por-dentro.md`](docs/trilha/02-o-formato-por-dentro.md) — dissecando o formato binário byte a byte, com análise diferencial.
+- [`docs/trilha/03-o-servidor.md`](docs/trilha/03-o-servidor.md) — Ktor do zero, e onde acaba o backend e começa o motor de documentos.
+- [`docs/roteiro.md`](docs/roteiro.md) — o mapa do que ainda dá para aprender, derivado dos 172 opcodes do formato.
+- [`docs/referencia/operando-o-emulador.md`](docs/referencia/operando-o-emulador.md) — instalar, tocar, fotografar e depurar o app pela linha de comando, com `adb`.
+- [`docs/referencia/classes-do-sdk.md`](docs/referencia/classes-do-sdk.md) — cada classe do SDK que usamos: o que faz, com quem conversa e onde estão as pegadinhas.
 
 ## Front × Back
 
@@ -198,13 +198,13 @@ curl -X DELETE http://localhost:8080/promocao
 
 > Chegar até aqui custou quatro armadilhas seguidas, todas com o mesmo
 > sintoma: tela em branco, HTTP 200, log limpo. Estão documentadas uma a uma
-> em [`docs/03-diario-de-bordo.md`](docs/03-diario-de-bordo.md) — é o conteúdo
+> em [`docs/diario/01-montando-o-projeto.md`](docs/diario/01-montando-o-projeto.md) — é o conteúdo
 > mais valioso deste repositório, porque não existe em nenhum outro lugar.
 
 ## O que este projeto NÃO tem
 
 - **Não há iOS nem Desktop**, e não haverá: a tecnologia não suporta
-  (ver [`docs/02`](docs/02-anatomia-dos-artefatos.md)).
+  (ver [`docs/02`](docs/referencia/artefatos.md)).
 - O "transporte" das Aulas 01–03 é **simulado** dentro do mesmo processo. Só a
   Aula 04 usa rede de verdade.
 
