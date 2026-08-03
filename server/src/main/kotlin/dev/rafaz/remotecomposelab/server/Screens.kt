@@ -36,15 +36,15 @@ import androidx.compose.remote.creation.modifiers.RoundedRectShape
  */
 
 // ───────────────────────────── paleta ─────────────────────────────
-private const val FUNDO = 0xFF14141B.toInt()
-private const val CARTAO = 0xFF1E1E2A.toInt()
-private const val CARTAO_ALTO = 0xFF272736.toInt()
-private const val ACENTO = 0xFF9B7BFF.toInt()
-private const val CIANO = 0xFF4DD0E1.toInt()
-private const val VERDE = 0xFF6BCB77.toInt()
-private const val VERMELHO = 0xFFFF6B6B.toInt()
-private const val TEXTO = 0xFFE8E8F0.toInt()
-private const val TEXTO_FRACO = 0xFF9A9AAE.toInt()
+private const val BG = 0xFF14141B.toInt()
+private const val CARD = 0xFF1E1E2A.toInt()
+private const val CARD_HIGH = 0xFF272736.toInt()
+private const val ACCENT = 0xFF9B7BFF.toInt()
+private const val CYAN = 0xFF4DD0E1.toInt()
+private const val GREEN = 0xFF6BCB77.toInt()
+private const val RED = 0xFFFF6B6B.toInt()
+private const val TEXT = 0xFFE8E8F0.toInt()
+private const val TEXT_MUTED = 0xFF9A9AAE.toInt()
 
 // ═════════════════════════════════════════════════════════════════
 // 1. CARTÃO DE PERFIL — Row, alinhamento e clip
@@ -60,14 +60,14 @@ private const val TEXTO_FRACO = 0xFF9A9AAE.toInt()
  *   "componente avatar" — é um quadrado colorido recortado. O formato só
  *   conhece formas.
  */
-fun telaCartaoPerfil(nome: String, cargo: String, iniciais: String): ByteArray =
-    documento(largura = 1080, altura = 300) {
-        Column(modifier = Modifier.fillMaxWidth().background(FUNDO).padding(24f)) {
-            rotulo("PERFIL")
+fun profileCardScreen(name: String, role: String, initials: String): ByteArray =
+    document(width = 1080, height = 300) {
+        Column(modifier = Modifier.fillMaxWidth().background(BG).padding(24f)) {
+            label("PERFIL")
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(CARTAO)
+                    .background(CARD)
                     .clip(RoundedRectShape(24f, 24f, 24f, 24f))
                     .padding(20f),
             ) {
@@ -80,15 +80,15 @@ fun telaCartaoPerfil(nome: String, cargo: String, iniciais: String): ByteArray =
                     Box(
                         modifier = Modifier
                             .size(96f)
-                            .background(ACENTO)
+                            .background(ACCENT)
                             .clip(CircleShape()),
                     ) {
-                        Text(iniciais, fontSize = RcSp(34f), color = 0xFF1A1A1A.toInt())
+                        Text(initials, fontSize = RcSp(34f), color = 0xFF1A1A1A.toInt())
                     }
                     Box(modifier = Modifier.width(20f)) {}
                     Column {
-                        Text(nome, fontSize = RcSp(30f), color = TEXTO)
-                        Text(cargo, fontSize = RcSp(18f), color = TEXTO_FRACO)
+                        Text(name, fontSize = RcSp(30f), color = TEXT)
+                        Text(role, fontSize = RcSp(18f), color = TEXT_MUTED)
                     }
                 }
             }
@@ -110,25 +110,25 @@ fun telaCartaoPerfil(nome: String, cargo: String, iniciais: String): ByteArray =
  * que aqui a divisão é calculada **no player**, com a largura real do aparelho
  * — o servidor não sabe e não precisa saber quantos pixels cada um vai ter.
  */
-fun telaPainelMetricas(metricas: List<Metrica>): ByteArray =
-    documento(largura = 1080, altura = 320) {
-        Column(modifier = Modifier.fillMaxWidth().background(FUNDO).padding(24f)) {
-            rotulo("MÉTRICAS DE HOJE")
+fun metricsPanelScreen(metrics: List<Metric>): ByteArray =
+    document(width = 1080, height = 320) {
+        Column(modifier = Modifier.fillMaxWidth().background(BG).padding(24f)) {
+            label("MÉTRICAS DE HOJE")
             Row(modifier = Modifier.fillMaxWidth()) {
-                metricas.forEachIndexed { indice, m ->
+                metrics.forEachIndexed { IndexDto, m ->
                     Column(
                         modifier = Modifier
                             .horizontalWeight(1f)
-                            .background(CARTAO)
+                            .background(CARD)
                             .clip(RoundedRectShape(18f, 18f, 18f, 18f))
                             .padding(18f),
                     ) {
-                        Text(m.valor, fontSize = RcSp(34f), color = m.cor)
-                        Text(m.titulo, fontSize = RcSp(15f), color = TEXTO_FRACO)
-                        Text(m.variacao, fontSize = RcSp(15f), color = m.cor)
+                        Text(m.value, fontSize = RcSp(34f), color = m.color)
+                        Text(m.title, fontSize = RcSp(15f), color = TEXT_MUTED)
+                        Text(m.change, fontSize = RcSp(15f), color = m.color)
                     }
                     // Espaçador entre os cartões, exceto depois do último.
-                    if (indice < metricas.size - 1) {
+                    if (IndexDto < metrics.size - 1) {
                         Box(modifier = Modifier.width(14f)) {}
                     }
                 }
@@ -136,7 +136,7 @@ fun telaPainelMetricas(metricas: List<Metrica>): ByteArray =
         }
     }
 
-data class Metrica(val titulo: String, val valor: String, val variacao: String, val cor: Int)
+data class Metric(val title: String, val value: String, val change: String, val color: Int)
 
 // ═════════════════════════════════════════════════════════════════
 // 3. LISTA DE PRODUTOS — UI gerada a partir de dados
@@ -154,29 +154,29 @@ data class Metrica(val titulo: String, val valor: String, val variacao: String, 
  * linha já escrito, e qualquer campo novo exigiria release. Aqui o app não
  * sabe o que é um produto.
  */
-fun telaListaProdutos(produtos: List<Produto>): ByteArray =
-    documento(largura = 1080, altura = 190 + produtos.size * 130) {
-        Column(modifier = Modifier.fillMaxWidth().background(FUNDO).padding(24f)) {
-            rotulo("CATÁLOGO  ·  ${produtos.size} ITENS")
+fun productListScreen(products: List<Product>): ByteArray =
+    document(width = 1080, height = 190 + products.size * 130) {
+        Column(modifier = Modifier.fillMaxWidth().background(BG).padding(24f)) {
+            label("CATÁLOGO  ·  ${products.size} ITENS")
 
-            produtos.forEach { p ->
+            products.forEach { p ->
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .background(CARTAO)
+                        .background(CARD)
                         .clip(RoundedRectShape(16f, 16f, 16f, 16f))
                         .padding(18f),
                     RcRowHorizontalPositioning.SpaceBetween,
                     RcVerticalPositioning.Center,
                 ) {
                     Column {
-                        Text(p.nome, fontSize = RcSp(24f), color = TEXTO)
-                        Text(p.categoria, fontSize = RcSp(15f), color = TEXTO_FRACO)
+                        Text(p.name, fontSize = RcSp(24f), color = TEXT)
+                        Text(p.category, fontSize = RcSp(15f), color = TEXT_MUTED)
                     }
                     Column {
-                        Text(p.preco, fontSize = RcSp(26f), color = if (p.emPromocao) VERDE else CIANO)
-                        if (p.emPromocao) {
-                            Text("promoção", fontSize = RcSp(14f), color = VERDE)
+                        Text(p.price, fontSize = RcSp(26f), color = if (p.onSale) GREEN else CYAN)
+                        if (p.onSale) {
+                            Text("promoção", fontSize = RcSp(14f), color = GREEN)
                         }
                     }
                 }
@@ -185,11 +185,11 @@ fun telaListaProdutos(produtos: List<Produto>): ByteArray =
         }
     }
 
-data class Produto(
-    val nome: String,
-    val categoria: String,
-    val preco: String,
-    val emPromocao: Boolean = false,
+data class Product(
+    val name: String,
+    val category: String,
+    val price: String,
+    val onSale: Boolean = false,
 )
 
 // ═════════════════════════════════════════════════════════════════
@@ -207,19 +207,19 @@ data class Produto(
  * Sem isso você precisaria de larguras fixas, e larguras fixas quebram no
  * primeiro aparelho diferente.
  */
-fun telaRecibo(itens: List<Pair<String, String>>, total: String): ByteArray =
-    documento(largura = 1080, altura = 240 + itens.size * 70) {
-        Column(modifier = Modifier.fillMaxWidth().background(FUNDO).padding(24f)) {
-            rotulo("RECIBO")
+fun receiptScreen(items: List<Pair<String, String>>, total: String): ByteArray =
+    document(width = 1080, height = 240 + items.size * 70) {
+        Column(modifier = Modifier.fillMaxWidth().background(BG).padding(24f)) {
+            label("RECIBO")
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(CARTAO)
+                    .background(CARD)
                     .clip(RoundedRectShape(20f, 20f, 20f, 20f))
                     .padding(22f),
             ) {
-                itens.forEach { (descricao, valor) ->
-                    linhaEntre(descricao, valor, RcSp(20f), TEXTO_FRACO, TEXTO)
+                items.forEach { (description, value) ->
+                    spacedRow(description, value, RcSp(20f), TEXT_MUTED, TEXT)
                     Box(modifier = Modifier.height(10f)) {}
                 }
 
@@ -229,11 +229,11 @@ fun telaRecibo(itens: List<Pair<String, String>>, total: String): ByteArray =
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(2f)
-                        .background(CARTAO_ALTO),
+                        .background(CARD_HIGH),
                 ) {}
                 Box(modifier = Modifier.height(14f)) {}
 
-                linhaEntre("TOTAL", total, RcSp(28f), TEXTO, ACENTO)
+                spacedRow("TOTAL", total, RcSp(28f), TEXT, ACCENT)
             }
         }
     }
@@ -256,28 +256,28 @@ fun telaRecibo(itens: List<Pair<String, String>>, total: String): ByteArray =
  *
  * É o mesmo padrão de `deep link`, e tem a mesma virtude: acoplamento mínimo.
  */
-fun telaInterativa(): ByteArray =
-    documento(largura = 1080, altura = 560) {
-        Column(modifier = Modifier.fillMaxWidth().background(FUNDO).padding(24f)) {
-            rotulo("TOQUE NOS BOTÕES")
+fun interactiveScreen(): ByteArray =
+    document(width = 1080, height = 560) {
+        Column(modifier = Modifier.fillMaxWidth().background(BG).padding(24f)) {
+            label("TOQUE NOS BOTÕES")
             Text(
                 "Cada toque manda uma string para o app.",
                 fontSize = RcSp(18f),
-                color = TEXTO_FRACO,
+                color = TEXT_MUTED,
             )
             Box(modifier = Modifier.height(18f)) {}
 
-            botao("Comprar agora", ACENTO, "comprar:sku-1042")
+            button("Comprar agora", ACCENT, "comprar:sku-1042")
             Box(modifier = Modifier.height(12f)) {}
-            botao("Adicionar aos favoritos", CIANO, "favoritar:sku-1042")
+            button("Adicionar aos favoritos", CYAN, "favoritar:sku-1042")
             Box(modifier = Modifier.height(12f)) {}
-            botao("Denunciar anúncio", VERMELHO, "denunciar:sku-1042")
+            button("Denunciar anúncio", RED, "denunciar:sku-1042")
 
             Box(modifier = Modifier.height(18f)) {}
             Text(
                 "O app não sabe o que é um SKU. Ele só recebe o texto.",
                 fontSize = RcSp(15f),
-                color = TEXTO_FRACO,
+                color = TEXT_MUTED,
             )
         }
     }
@@ -288,38 +288,38 @@ fun telaInterativa(): ByteArray =
 // confortável: componentização é só extrair função, sem cerimônia nenhuma.
 
 /** Um botão: Box colorido, arredondado e clicável. */
-private fun RcScope.botao(texto: String, cor: Int, acao: String) {
+private fun RcScope.button(text: String, color: Int, action: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(cor)
+            .background(color)
             .clip(RoundedRectShape(14f, 14f, 14f, 14f))
             .padding(18f)
-            .onClick { hostAction(acao) },
+            .onClick { hostAction(action) },
     ) {
-        Text(texto, fontSize = RcSp(22f), color = 0xFF14141B.toInt())
+        Text(text, fontSize = RcSp(22f), color = 0xFF14141B.toInt())
     }
 }
 
 /** Rótulo de seção. */
-private fun RcScope.rotulo(texto: String) {
-    Text(texto, fontSize = RcSp(16f), color = ACENTO)
+private fun RcScope.label(text: String) {
+    Text(text, fontSize = RcSp(16f), color = ACCENT)
     Box(modifier = Modifier.height(14f)) {}
 }
 
 /** Uma linha "rótulo à esquerda, valor à direita". */
-private fun RcColumnScope.linhaEntre(
-    esquerda: String,
-    direita: String,
-    tamanho: RcSp,
-    corEsquerda: Int,
-    corDireita: Int,
+private fun RcColumnScope.spacedRow(
+    left: String,
+    right: String,
+    size: RcSp,
+    leftColor: Int,
+    rightColor: Int,
 ) {
     Row(
         Modifier.fillMaxWidth(),
         RcRowHorizontalPositioning.SpaceBetween,
     ) {
-        Text(esquerda, fontSize = tamanho, color = corEsquerda)
-        Text(direita, fontSize = tamanho, color = corDireita)
+        Text(left, fontSize = size, color = leftColor)
+        Text(right, fontSize = size, color = rightColor)
     }
 }

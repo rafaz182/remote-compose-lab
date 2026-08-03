@@ -5,7 +5,7 @@ documentação oficial do Remote Compose não tem índice. Saiu de duas fontes
 concretas:
 
 - a **tabela de 172 opcodes**, extraída por reflexão da classe `Operations`
-  (`.\gradlew.bat :server:runDissecar`);
+  (`.\gradlew.bat :server:runDissect`);
 - os **pacotes públicos** dos artefatos, listados com `javap`.
 
 Ou seja: cada tópico abaixo corresponde a capacidade que **existe no
@@ -25,7 +25,7 @@ Legenda: ✅ feito · 🔜 próximo · 🔬 existe mas não verifiquei
 | ✅ | Front × Back real, com backend JVM | Aula 04 |
 | ✅ | O formato binário por dentro | `docs/05` |
 | ✅ | Arquitetura do servidor | `docs/06` |
-| ✅ | Telas ricas geradas no servidor | Aula 05 · `server/.../Telas.kt` |
+| ✅ | Telas ricas geradas no servidor | Aula 05 · `server/.../Screens.kt` |
 | ✅ | **Eventos e ações** (era o item B1) | Aula 05 · tela `interativo` |
 
 ---
@@ -42,10 +42,10 @@ Como o documento reage a toque e conversa de volta com o app hospedeiro.
 **O que verificamos rodando:**
 
 ```kotlin
-// SERVIDOR (Telas.kt)
+// SERVIDOR (Screens.kt)
 Box(modifier = Modifier.background(cor).onClick { hostAction("comprar:sku-1042") })
 
-// APP (L05GaleriaDoServidor.kt)
+// APP (L05GaleriaDoServer.kt)
 RemoteComposePlayer(doc, …) { nome, valor, _ -> /* "comprar:sku-1042" */ }
 ```
 
@@ -77,7 +77,7 @@ uma pergunta de segurança óbvia que vale um parágrafo em qualquer artigo sér
 Tentado na Aula 05 (telas `contador` e `relogio`). O que ficou provado e o que
 não:
 
-**✅ Valores remotos existem e são exibidos.** `PonteRc.valorFloat(writer, 7f)`
+**✅ Valores remotos existem e são exibidos.** `RcBridge.floatValue(writer, 7f)`
 mais `createTextFromFloat(valor, 3, 0, 0)` desenha o número corretamente. O
 construtor de `RcFloat` é `internal` no Kotlin — mesma ponte Java do
 `RcScopeImpl`.
@@ -106,11 +106,11 @@ constante (`setValue(contador, 0f)`). Isolado assim:
 
 ### O que a investigação apurou depois
 
-**Reprodução mínima construída** (tela `teste-estado` em `TelasComEstado.kt`):
+**Reprodução mínima construída** (tela `teste-estado` em `StatefulScreens.kt`):
 um valor, um botão, sem `named()`, sem aritmética, sem Row nem weight.
 
 ```kotlin
-val valor = PonteRc.valorFloat(writer, 1f)
+val valor = RcBridge.floatValue(writer, 1f)
 Text(createTextFromFloat(valor, 3, 0, 0), …)          // mostra 1  ✅
 Box(Modifier….onClick { setValue(valor, 99f) })        // toque não muda nada ❌
 ```

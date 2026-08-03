@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remote.rememberDocument
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.Stage
 import androidx.compose.material3.Text as TextoNormal
 
 /**
@@ -35,10 +35,10 @@ import androidx.compose.material3.Text as TextoNormal
  * a mais do que o Compose que você já conhece.
  */
 @Composable
-fun L01OlaRemoteCompose() {
+fun L01HelloRemoteCompose() {
     Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "No Compose que você já usa, escrever a UI e mostrá-la na tela são a " +
                 "mesma coisa: você chama Text(\"Olá\") e o texto aparece. Não existe " +
                 "nada no meio.\n\n" +
@@ -46,7 +46,7 @@ fun L01OlaRemoteCompose() {
                 "inteiro da tecnologia.",
         )
 
-        BlocoCodigo(
+        CodeBlock(
             """
             Compose comum:
                 Text("Olá")  ────────────────────────────▶  pixels
@@ -57,14 +57,14 @@ fun L01OlaRemoteCompose() {
             """,
         )
 
-        Explicacao(
+        Explanation(
             "Aquele ByteArray no meio é um documento: um valor de verdade, que " +
                 "você pode guardar em disco, mandar por HTTP ou empurrar para um " +
                 "relógio. É isso que uma @Composable comum nunca conseguiu ser.",
         )
 
         // ── O lado esquerdo da ponte: Compose comum, para comparar ─────────
-        Palco("Compose comum (o que você já conhece)", corBorda = Cores.TextoFraco) {
+        Stage("Compose comum (o que você já conhece)", borderColor = Palette.TextMuted) {
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -85,7 +85,7 @@ fun L01OlaRemoteCompose() {
         // Repare que a estrutura do código é quase idêntica. A troca é
         // sistemática: Column → RemoteColumn, Text → RemoteText,
         // Modifier → RemoteModifier, 20.dp → 20.rdp, 22.sp → 22.rsp.
-        val doc = lembrarDocumento {
+        val doc = rememberDocument {
             RemoteColumn(
                 modifier = RemoteModifier
                     .fillMaxWidth()
@@ -105,18 +105,18 @@ fun L01OlaRemoteCompose() {
             }
         }
 
-        Palco("Remote Compose (atravessou um documento)") {
+        Stage("Remote Compose (atravessou um documento)") {
             if (doc == null) {
-                TextoNormal("gravando o documento…", color = Cores.TextoFraco, fontSize = 13.sp)
+                TextoNormal("gravando o documento…", color = Palette.TextMuted, fontSize = 13.sp)
             } else {
                 RemoteComposePlayer(
-                    document = doc.documento,
+                    document = doc.document,
                     modifier = Modifier.fillMaxWidth().height(110.dp),
                 )
             }
         }
 
-        Destaque(
+        Callout(
             "Os dois quadros acima parecem iguais — e é exatamente esse o ponto. " +
                 "O de baixo não foi desenhado pelo seu código: ele foi gravado como " +
                 "documento e depois EXECUTADO por um player. Seu app poderia nunca " +
@@ -124,8 +124,8 @@ fun L01OlaRemoteCompose() {
         )
 
         if (doc != null) {
-            Explicacao("O tamanho do documento que acabou de ser gerado:")
-            BlocoCodigo("${doc.tamanhoBytes} bytes\n\nprimeiros bytes:\n${doc.hex(24)}")
+            Explanation("O tamanho do documento que acabou de ser gerado:")
+            CodeBlock("${doc.sizeInBytes} bytes\n\nprimeiros bytes:\n${doc.hex(24)}")
         }
     }
 }

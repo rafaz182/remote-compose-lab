@@ -48,8 +48,8 @@ Depois abra o app, vá na Aula 04 ou 05 e toque em carregar.
 | Subir o servidor (porta 8080) | `.\gradlew.bat :server:run` |
 | Compilar o app | `.\gradlew.bat :app:assembleDebug` |
 | Compilar **e** instalar | `.\gradlew.bat :app:installDebug` |
-| Ver a tabela de opcodes e dumps hex | `.\gradlew.bat :server:runDissecar` |
-| Descobrir o `apiLevel` aceito | `.\gradlew.bat :server:runSonda` |
+| Ver a tabela de opcodes e dumps hex | `.\gradlew.bat :server:runDissect` |
+| Descobrir o `apiLevel` aceito | `.\gradlew.bat :server:runProbe` |
 | Limpar tudo | `.\gradlew.bat clean` |
 
 No Linux/macOS troque `.\gradlew.bat` por `./gradlew`.
@@ -110,12 +110,12 @@ Ou simplesmente abra a pasta no Android Studio, que reconhece os dois módulos.
 
 | Pasta | O que tem |
 |---|---|
-| `app/src/main/java/.../licoes/` | Uma aula por arquivo. É aqui que está o conteúdo. |
-| `app/src/main/java/.../remoto/` | Grava documentos (`lembrarDocumento`) e busca no servidor. |
+| `app/src/main/java/.../lessons/` | Uma aula por arquivo. É aqui que está o conteúdo. |
+| `app/src/main/java/.../remote/` | Grava documentos (`rememberDocument`) e busca no servidor. |
 | `app/src/main/java/.../ui/` | Casca didática: palco, blocos de código, tema. Compose **comum**. |
-| `app/src/main/java/.../catalogo/` | Lista de aulas e navegação. |
+| `app/src/main/java/.../catalog/` | Lista de aulas e navegação. |
 | `server/src/main/kotlin/` | Ktor + geração de documentos em JVM pura. |
-| `server/src/main/java/` | `PonteRc.java` — três linhas que contornam um `internal` do Kotlin. |
+| `server/src/main/java/` | `RcBridge.java` — três linhas que contornam um `internal` do Kotlin. |
 | `docs/` | Teoria longa, que não caberia num comentário. |
 | `CLAUDE.md` | Contexto e regras do repositório para o agente. |
 

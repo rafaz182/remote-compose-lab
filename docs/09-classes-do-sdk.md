@@ -100,7 +100,7 @@ Profile(apiLevel, operationsProfiles, platform, factory)
 **Pegadinha:** `apiLevel` precisa ser **≥ 6**. Não existe constante pública com
 esse valor. Qualquer coisa abaixo estoura em runtime com
 `RuntimeException: Unsupported API level N`. Descobrimos varrendo — ver
-`Sonda.kt`.
+`Probe.kt`.
 
 ### `RemoteComposeWriterFactory` 🟢
 `androidx.compose.remote.creation.profile` · `remote-creation-core`
@@ -150,7 +150,7 @@ endpoint chegou a responder 1.048.576 bytes para um documento de 400.
 
 ---
 
-## A DSL de escrita (usada em `Documentos.kt`, `Telas.kt`, `TelasComEstado.kt`)
+## A DSL de escrita (usada em `Documents.kt`, `Screens.kt`, `StatefulScreens.kt`)
 
 ### `RcScope` 🟢 e `RcColumnScope` 🟢
 `androidx.compose.remote.creation.dsl` · `remote-creation-core`
@@ -177,7 +177,7 @@ vertical)`) têm nomes que a biblioteca não expõe de forma utilizável. Passe
 A implementação concreta do escopo. É marcada `internal` no Kotlin, mas
 `public` no bytecode — `internal` é convenção do compilador Kotlin, não da JVM.
 
-**Como usamos:** através de `PonteRc.java`, porque Java não conhece a
+**Como usamos:** através de `RcBridge.java`, porque Java não conhece a
 convenção do Kotlin e enxerga a classe normalmente.
 
 **Risco assumido:** API interna de biblioteca alpha. Se o `:server` parar de
@@ -226,7 +226,7 @@ A analogia que funciona: é uma **célula de planilha**. `=A1+1` não guarda um
 número, guarda uma relação.
 
 **Construção:** o construtor `RcFloat(writer, valor)` é `internal` no Kotlin →
-usamos `PonteRc.valorFloat(writer, 1f)`.
+usamos `RcBridge.floatValue(writer, 1f)`.
 
 **Aritmética:** existem **93 funções** sobre `RcFloat` (`sin`, `cos`, `sqrt`,
 `pow`, `abs`, `min`, `max`, `exp`, `ceil`…). Os operadores vêm como extensões
@@ -279,7 +279,7 @@ Não existe "componente avatar" — um avatar é um `Box` colorido com
 A tabela de opcodes: 172 constantes `public static final int` mapeando número →
 nome de operação (`LAYOUT_COLUMN = 204`, `DATA_TEXT = 102`…).
 
-**Como usamos:** `Dissecar.kt` lê essa tabela **por reflexão**, então ela nunca
+**Como usamos:** `Dissect.kt` lê essa tabela **por reflexão**, então ela nunca
 fica desatualizada em relação à versão da biblioteca.
 
 ### `Header` 🟡
@@ -300,7 +300,7 @@ por dois motivos: ele não permite informar o `CreationDisplayInfo` (documento
 nasce 0×0), e ele **já cria o componente raiz** — um `RcRoot` explícito dentro
 dele gera duas raízes e quebra o layout.
 
-Sobrevive apenas em `Sonda.kt`, onde o tamanho não importa.
+Sobrevive apenas em `Probe.kt`, onde o tamanho não importa.
 
 ---
 

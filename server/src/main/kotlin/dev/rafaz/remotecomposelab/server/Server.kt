@@ -41,23 +41,23 @@ import java.util.concurrent.atomic.AtomicReference
  * é proposital: queremos que você mude a UI do app por `curl`, num terminal,
  * e veja a tela mudar sem recompilar nada.
  */
-private val promocaoAtual = AtomicReference<Promocao?>(
-    Promocao(
-        chamada = "Leve 3, pague 2",
-        descricao = "Só até domingo, em toda a loja.",
-        preco = "R$ 49,90",
+private val currentPromo = AtomicReference<Promo?>(
+    Promo(
+        headline = "Leve 3, pague 2",
+        description = "Só até domingo, em toda a loja.",
+        price = "R$ 49,90",
     ),
 )
 
 @Serializable
-data class PromocaoDto(
-    val chamada: String,
-    val descricao: String,
-    val preco: String,
+data class PromoDto(
+    val headline: String,
+    val description: String,
+    val price: String,
 )
 
 @Serializable
-data class Indice(
+data class IndexDto(
     val servico: String,
     val versaoRemoteCompose: String,
     val apiLevelDoFormato: Int,
@@ -67,7 +67,7 @@ data class Indice(
 /**
  * Metadado de uma tela.
  *
- * Repare no campo [altura]. Ele existe porque o player precisa saber a altura
+ * Repare no campo [height]. Ele existe porque o player precisa saber a altura
  * de referência do documento para escalá-lo corretamente — e essa informação
  * é METADADO, não conteúdo. Antes o app tinha um `when (id)` com as alturas
  * fixas, o que quebrava toda vez que o servidor mudava uma tela.
@@ -77,11 +77,11 @@ data class Indice(
  * *mostrar*, vai no documento.
  */
 @Serializable
-data class TelaDto(
+data class ScreenDto(
     val id: String,
-    val titulo: String,
-    val ensina: String,
-    val altura: Int,
+    val title: String,
+    val teaches: String,
+    val height: Int,
 )
 
 /**
@@ -90,40 +90,40 @@ data class TelaDto(
  * Os dados de exemplo moram aqui, no servidor. Trocar qualquer coisa nesta
  * lista muda o app de todo mundo, sem release — que é o ponto inteiro.
  */
-private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
+private val SCREENS: Map<String, Pair<ScreenDto, () -> ByteArray>> = linkedMapOf(
     "perfil" to (
-        TelaDto("perfil", "Cartão de perfil", "Row, alinhamento vertical e clip circular", 300) to
-            { telaCartaoPerfil("Rafael Ramos", "Desenvolvedor Android", "RR") }
+        ScreenDto("perfil", "Cartão de perfil", "Row, alinhamento vertical e clip circular", 300) to
+            { profileCardScreen("Rafael Ramos", "Desenvolvedor Android", "RR") }
         ),
     "metricas" to (
-        TelaDto("metricas", "Painel de métricas", "weight: dividir espaço proporcionalmente", 320) to
+        ScreenDto("metricas", "Painel de métricas", "weight: dividir espaço proporcionalmente", 320) to
             {
-                telaPainelMetricas(
+                metricsPanelScreen(
                     listOf(
-                        Metrica("Vendas", "1.284", "+12%", 0xFF6BCB77.toInt()),
-                        Metrica("Devoluções", "37", "-4%", 0xFF4DD0E1.toInt()),
-                        Metrica("Ticket médio", "R$ 89", "+3%", 0xFF9B7BFF.toInt()),
+                        Metric("Vendas", "1.284", "+12%", 0xFF6BCB77.toInt()),
+                        Metric("Devoluções", "37", "-4%", 0xFF4DD0E1.toInt()),
+                        Metric("Ticket médio", "R$ 89", "+3%", 0xFF9B7BFF.toInt()),
                     ),
                 )
             }
         ),
     "produtos" to (
-        TelaDto("produtos", "Lista de produtos", "gerar UI a partir de dados do servidor", 710) to
+        ScreenDto("produtos", "Lista de produtos", "gerar UI a partir de dados do servidor", 710) to
             {
-                telaListaProdutos(
+                productListScreen(
                     listOf(
-                        Produto("Teclado mecânico", "Periféricos", "R$ 349,00"),
-                        Produto("Monitor 27\"", "Monitores", "R$ 1.299,00", emPromocao = true),
-                        Produto("Cadeira ergonômica", "Móveis", "R$ 2.150,00"),
-                        Produto("Webcam 1080p", "Periféricos", "R$ 279,00", emPromocao = true),
+                        Product("Teclado mecânico", "Periféricos", "R$ 349,00"),
+                        Product("Monitor 27\"", "Monitores", "R$ 1.299,00", onSale = true),
+                        Product("Cadeira ergonômica", "Móveis", "R$ 2.150,00"),
+                        Product("Webcam 1080p", "Periféricos", "R$ 279,00", onSale = true),
                     ),
                 )
             }
         ),
     "recibo" to (
-        TelaDto("recibo", "Recibo", "spaceBetween: alinhar rótulo e valor sem calcular largura", 520) to
+        ScreenDto("recibo", "Recibo", "spaceBetween: alinhar rótulo e valor sem calcular largura", 520) to
             {
-                telaRecibo(
+                receiptScreen(
                     listOf(
                         "Monitor 27\"" to "R$ 1.299,00",
                         "Webcam 1080p" to "R$ 279,00",
@@ -135,20 +135,20 @@ private val TELAS: Map<String, Pair<TelaDto, () -> ByteArray>> = linkedMapOf(
             }
         ),
     "interativo" to (
-        TelaDto("interativo", "Botões interativos", "eventos: o documento conversa com o app", 560) to
-            { telaInterativa() }
+        ScreenDto("interativo", "Botões interativos", "eventos: o documento conversa com o app", 560) to
+            { interactiveScreen() }
         ),
     "contador" to (
-        TelaDto("contador", "Contador", "estado remoto: muda sem tocar na rede", 520) to
-            { telaContador() }
+        ScreenDto("contador", "Contador", "estado remoto: muda sem tocar na rede", 520) to
+            { counterScreen() }
         ),
     "relogio" to (
-        TelaDto("relogio", "Relógio", "o documento lê o tempo e recalcula sozinho", 460) to
-            { telaRelogio() }
+        ScreenDto("relogio", "Relógio", "o documento lê o tempo e recalcula sozinho", 460) to
+            { clockScreen() }
         ),
     "teste-estado" to (
-        TelaDto("teste-estado", "⚙ Repro mínima", "diagnóstico: por que setValue não funciona", 380) to
-            { telaTesteEstado() }
+        ScreenDto("teste-estado", "⚙ Repro mínima", "diagnóstico: por que setValue não funciona", 380) to
+            { stateProbeScreen() }
         ),
 )
 
@@ -163,10 +163,10 @@ fun main() {
         routing {
             get("/") {
                 call.respond(
-                    Indice(
+                    IndexDto(
                         servico = "Remote Compose Lab — servidor de documentos",
                         versaoRemoteCompose = "1.0.0-alpha16",
-                        apiLevelDoFormato = API_LEVEL_MINIMO,
+                        apiLevelDoFormato = MIN_API_LEVEL,
                         endpoints = listOf(
                             "GET  /documento/boas-vindas?nome=Rafael   -> bytes do documento",
                             "GET  /documento/promocao                  -> bytes do documento",
@@ -187,16 +187,16 @@ fun main() {
             // precisa saber o que tem dentro — ele só toca.
 
             get("/documento/boas-vindas") {
-                val nome = call.request.queryParameters["nome"] ?: "visitante"
+                val name = call.request.queryParameters["nome"] ?: "visitante"
                 call.respondBytes(
-                    documentoBoasVindas(nome),
+                    welcomeDocument(name),
                     ContentType.Application.OctetStream,
                 )
             }
 
             get("/documento/promocao") {
                 call.respondBytes(
-                    documentoPromocao(promocaoAtual.get()),
+                    promoDocument(currentPromo.get()),
                     ContentType.Application.OctetStream,
                 )
             }
@@ -212,12 +212,12 @@ fun main() {
             // apenas MOSTRAR.
 
             get("/telas") {
-                call.respond(TELAS.values.map { it.first })
+                call.respond(SCREENS.values.map { it.first })
             }
 
             get("/documento/tela/{id}") {
                 val id = call.parameters["id"]
-                val tela = TELAS[id]
+                val tela = SCREENS[id]
                 if (tela == null) {
                     call.respond(HttpStatusCode.NotFound, mapOf("erro" to "tela '$id' não existe"))
                 } else {
@@ -228,22 +228,22 @@ fun main() {
             // ── Controle da promoção, para você brincar via curl ──────────
 
             get("/promocao") {
-                val p = promocaoAtual.get()
+                val p = currentPromo.get()
                 if (p == null) {
                     call.respond(mapOf("ativa" to false))
                 } else {
-                    call.respond(PromocaoDto(p.chamada, p.descricao, p.preco))
+                    call.respond(PromoDto(p.headline, p.description, p.price))
                 }
             }
 
             put("/promocao") {
-                val dto = call.receive<PromocaoDto>()
-                promocaoAtual.set(Promocao(dto.chamada, dto.descricao, dto.preco))
+                val dto = call.receive<PromoDto>()
+                currentPromo.set(Promo(dto.headline, dto.description, dto.price))
                 call.respond(mapOf("ok" to true, "ativa" to true))
             }
 
             delete("/promocao") {
-                promocaoAtual.set(null)
+                currentPromo.set(null)
                 call.respond(mapOf("ok" to true, "ativa" to false))
             }
         }

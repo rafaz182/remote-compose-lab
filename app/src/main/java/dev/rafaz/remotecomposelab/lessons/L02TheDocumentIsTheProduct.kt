@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,13 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.LinhaMetrica
-import dev.rafaz.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remote.rememberDocument
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.MetricRow
+import dev.rafaz.remotecomposelab.ui.Stage
 
 /**
  * AULA 02 — O documento é o produto
@@ -45,10 +45,10 @@ import dev.rafaz.remotecomposelab.ui.Palco
  * que aconteceria se eles tivessem vindo pela rede.
  */
 @Composable
-fun L02ODocumentoEOProduto() {
+fun L02TheDocumentIsTheProduct() {
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "Na aula anterior o documento apareceu de passagem. Agora ele é o " +
                 "assunto.\n\n" +
                 "Um documento Remote Compose é um ByteArray autocontido. Ele carrega " +
@@ -56,7 +56,7 @@ fun L02ODocumentoEOProduto() {
                 "desenho — uma espécie de bytecode de interface.",
         )
 
-        val original = lembrarDocumento {
+        val original = rememberDocument {
             RemoteColumn(
                 modifier = RemoteModifier
                     .fillMaxWidth()
@@ -77,13 +77,13 @@ fun L02ODocumentoEOProduto() {
         }
 
         if (original == null) {
-            Text("gravando…", color = Cores.TextoFraco, fontSize = 13.sp)
+            Text("gravando…", color = Palette.TextMuted, fontSize = 13.sp)
             return@Column
         }
 
-        Palco("Documento original") {
+        Stage("Documento original") {
             RemoteComposePlayer(
-                document = original.documento,
+                document = original.document,
                 modifier = Modifier.fillMaxWidth().height(100.dp),
             )
         }
@@ -93,15 +93,15 @@ fun L02ODocumentoEOProduto() {
         // `original.bytes` é o único elo. Repare que NÃO reutilizamos o objeto
         // RemoteDocument: construímos um novo a partir dos bytes crus, como o
         // app de um usuário faria após um download.
-        var recebido by remember { mutableStateOf<RemoteDocument?>(null) }
+        var received by remember { mutableStateOf<RemoteDocument?>(null) }
 
-        Explicacao(
+        Explanation(
             "Abaixo, o botão faz o que um app real faria ao receber uma resposta " +
                 "HTTP: pega os bytes crus e constrói um documento novinho, sem " +
                 "acesso nenhum ao código que o gerou.",
         )
 
-        BlocoCodigo(
+        CodeBlock(
             """
             // no servidor (ou no build, ou num CMS)
             val bytes: ByteArray = documento.bytes
@@ -115,40 +115,40 @@ fun L02ODocumentoEOProduto() {
         )
 
         Button(
-            onClick = { recebido = RemoteDocument(original.bytes) },
+            onClick = { received = RemoteDocument(original.bytes) },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(if (recebido == null) "Receber os bytes e renderizar" else "Receber de novo")
+            Text(if (received == null) "Receber os bytes e renderizar" else "Receber de novo")
         }
 
-        if (recebido != null) {
-            Palco("Reconstruído SÓ a partir dos bytes", corBorda = Cores.Bytes) {
+        if (received != null) {
+            Stage("Reconstruído SÓ a partir dos bytes", borderColor = Palette.Bytes) {
                 RemoteComposePlayer(
-                    document = recebido!!,
+                    document = received!!,
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                 )
             }
         }
 
-        Destaque(
+        Callout(
             "Pare um segundo aqui. O quadro acima foi renderizado por um objeto " +
                 "que só recebeu bytes. Nenhuma classe, nenhuma @Composable, nenhum " +
                 "recurso do seu app participou. É por isso que Remote Compose " +
                 "consegue atravessar processos e dispositivos.",
         )
 
-        Explicacao("Anatomia do documento que geramos:")
+        Explanation("Anatomia do documento que geramos:")
 
         Column(
             Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
-            LinhaMetrica("tamanho em bytes", "${original.tamanhoBytes}")
-            LinhaMetrica("largura medida", "${original.largura} px")
-            LinhaMetrica("altura medida", "${original.altura} px")
+            MetricRow("tamanho em bytes", "${original.sizeInBytes}")
+            MetricRow("largura medida", "${original.width} px")
+            MetricRow("altura medida", "${original.height} px")
         }
 
-        Destaque(
+        Callout(
             "Pegadinha que vale ouro: só o \"tamanho em bytes\" é uma propriedade " +
                 "dos bytes. Largura e altura NÃO são — elas mudam conforme o player " +
                 "mede o documento. Role a tela para cima e para baixo e volte aqui: " +
@@ -157,23 +157,23 @@ fun L02ODocumentoEOProduto() {
                 "documento não carrega um tamanho pronto; ele carrega instruções de " +
                 "layout que são RESOLVIDAS no destino. Quem decide a largura é o " +
                 "player, com a tela que ele tem — não você, na hora de gravar.",
-            cor = Cores.Leitura,
+            color = Palette.Read,
         )
 
-        Explicacao(
+        Explanation(
             "E estes são os primeiros bytes, em hexadecimal. Não decore nada aqui " +
                 "— o objetivo é só você ver com os próprios olhos que a sua UI virou " +
                 "um blob binário:",
         )
-        BlocoCodigo(original.hex(48))
+        CodeBlock(original.hex(48))
 
-        Destaque(
+        Callout(
             "Compare com Server-Driven UI baseado em JSON: lá o servidor manda uma " +
                 "DESCRIÇÃO que o app precisa saber interpretar (\"type\": \"button\" só " +
                 "funciona se o app já tiver um botão pronto). Aqui o documento " +
                 "carrega as operações de desenho em si. O player não precisa " +
                 "conhecer o seu design system.",
-            cor = Cores.Escrita,
+            color = Palette.Write,
         )
     }
 }

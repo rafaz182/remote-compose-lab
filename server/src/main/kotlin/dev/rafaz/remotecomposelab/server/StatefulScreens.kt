@@ -48,13 +48,13 @@ import androidx.compose.remote.creation.modifiers.RoundedRectShape
  * guarda uma relação.
  */
 
-private const val FUNDO_E = 0xFF14141B.toInt()
-private const val CARTAO_E = 0xFF1E1E2A.toInt()
-private const val ACENTO_E = 0xFF9B7BFF.toInt()
-private const val CIANO_E = 0xFF4DD0E1.toInt()
-private const val VERDE_E = 0xFF6BCB77.toInt()
-private const val TEXTO_E = 0xFFE8E8F0.toInt()
-private const val FRACO_E = 0xFF9A9AAE.toInt()
+private const val BG_S = 0xFF14141B.toInt()
+private const val CARD_S = 0xFF1E1E2A.toInt()
+private const val ACCENT_S = 0xFF9B7BFF.toInt()
+private const val CYAN_S = 0xFF4DD0E1.toInt()
+private const val GREEN_S = 0xFF6BCB77.toInt()
+private const val TEXT_S = 0xFFE8E8F0.toInt()
+private const val MUTED_S = 0xFF9A9AAE.toInt()
 
 // ═════════════════════════════════════════════════════════════════
 // 1. CONTADOR — estado que muda sem rede
@@ -83,17 +83,17 @@ private const val FRACO_E = 0xFF9A9AAE.toInt()
  * e não o contrário — então soma-se o literal ao remoto, nunca o inverso.
  * Para subtrair, o truque é somar um negativo: `(-1f) + contador`.
  */
-fun telaContador(): ByteArray = documento(largura = 1080, altura = 520) { writer ->
+fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer ->
     // O espaço de valor. A partir daqui, `contador` é uma REFERÊNCIA, não um
     // número — some, multiplique, compare: tudo vira fórmula gravada.
-    val contador = PonteRc.valorFloat(writer, 7f).named("contador")
+    val contador = RcBridge.floatValue(writer, 7f).named("contador")
 
-    Column(modifier = Modifier.fillMaxWidth().background(FUNDO_E).padding(28f)) {
-        Text("CONTADOR", fontSize = RcSp(16f), color = ACENTO_E)
+    Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
+        Text("CONTADOR", fontSize = RcSp(16f), color = ACCENT_S)
         Text(
             "O valor vive dentro do documento.",
             fontSize = RcSp(17f),
-            color = FRACO_E,
+            color = MUTED_S,
         )
         Box(modifier = Modifier.height(20f)) {}
 
@@ -104,14 +104,14 @@ fun telaContador(): ByteArray = documento(largura = 1080, altura = 520) { writer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CARTAO_E)
+                .background(CARD_S)
                 .clip(RoundedRectShape(20f, 20f, 20f, 20f))
                 .padding(28f),
         ) {
             Text(
                 createTextFromFloat(contador, 3, 0, 0),
                 fontSize = RcSp(64f),
-                color = CIANO_E,
+                color = CYAN_S,
             )
         }
 
@@ -122,16 +122,16 @@ fun telaContador(): ByteArray = documento(largura = 1080, altura = 520) { writer
             RcRowHorizontalPositioning.SpaceBetween,
             RcVerticalPositioning.Center,
         ) {
-            botaoEstado("−  1", 0xFFFF6B6B.toInt()) { setValue(contador, (-1f) + contador) }
-            botaoEstado("zerar", FRACO_E) { setValue(contador, 0f) }
-            botaoEstado("+  1", VERDE_E) { setValue(contador, 1f + contador) }
+            stateButton("−  1", 0xFFFF6B6B.toInt()) { setValue(contador, (-1f) + contador) }
+            stateButton("zerar", MUTED_S) { setValue(contador, 0f) }
+            stateButton("+  1", GREEN_S) { setValue(contador, 1f + contador) }
         }
 
         Box(modifier = Modifier.height(18f)) {}
         Text(
             "Nenhum byte trafega ao tocar. O app nem fica sabendo.",
             fontSize = RcSp(15f),
-            color = FRACO_E,
+            color = MUTED_S,
         )
     }
 }
@@ -157,24 +157,24 @@ fun telaContador(): ByteArray = documento(largura = 1080, altura = 520) { writer
  * É a mesma disciplina de sempre: quando algo não funciona e não há erro,
  * reduza até sobrar uma variável só.
  */
-fun telaTesteEstado(): ByteArray = documento(largura = 1080, altura = 380) { writer ->
-    val valor = PonteRc.valorFloat(writer, 1f)
+fun stateProbeScreen(): ByteArray = document(width = 1080, height = 380) { writer ->
+    val value = RcBridge.floatValue(writer, 1f)
 
-    Column(modifier = Modifier.fillMaxWidth().background(FUNDO_E).padding(28f)) {
-        Text("REPRODUÇÃO MÍNIMA", fontSize = RcSp(16f), color = ACENTO_E)
-        Text("sem named(), sem aritmética", fontSize = RcSp(16f), color = FRACO_E)
+    Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
+        Text("REPRODUÇÃO MÍNIMA", fontSize = RcSp(16f), color = ACCENT_S)
+        Text("sem named(), sem aritmética", fontSize = RcSp(16f), color = MUTED_S)
         Box(modifier = Modifier.height(16f)) {}
 
-        Text(createTextFromFloat(valor, 3, 0, 0), fontSize = RcSp(72f), color = CIANO_E)
+        Text(createTextFromFloat(value, 3, 0, 0), fontSize = RcSp(72f), color = CYAN_S)
 
         Box(modifier = Modifier.height(16f)) {}
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(VERDE_E)
+                .background(GREEN_S)
                 .clip(RoundedRectShape(14f, 14f, 14f, 14f))
                 .padding(22f)
-                .onClick { setValue(valor, 99f) },
+                .onClick { setValue(value, 99f) },
         ) {
             Text("virar 99", fontSize = RcSp(26f), color = 0xFF14141B.toInt())
         }
@@ -204,20 +204,20 @@ fun telaTesteEstado(): ByteArray = documento(largura = 1080, altura = 380) { wri
  * (E é também a antessala das animações: se o tempo é um valor comum, então
  * qualquer propriedade visual pode ser função dele.)
  */
-fun telaRelogio(): ByteArray = documento(largura = 1080, altura = 460) {
-    Column(modifier = Modifier.fillMaxWidth().background(FUNDO_E).padding(28f)) {
-        Text("RELÓGIO", fontSize = RcSp(16f), color = ACENTO_E)
+fun clockScreen(): ByteArray = document(width = 1080, height = 460) {
+    Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
+        Text("RELÓGIO", fontSize = RcSp(16f), color = ACCENT_S)
         Text(
             "Gerado uma vez. Anda sozinho.",
             fontSize = RcSp(17f),
-            color = FRACO_E,
+            color = MUTED_S,
         )
         Box(modifier = Modifier.height(22f)) {}
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CARTAO_E)
+                .background(CARD_S)
                 .clip(RoundedRectShape(20f, 20f, 20f, 20f))
                 .padding(26f),
         ) {
@@ -229,11 +229,11 @@ fun telaRelogio(): ByteArray = documento(largura = 1080, altura = 460) {
                 // Cada peça é uma leitura do relógio do APARELHO, não do
                 // servidor. `2` dígitos antes da vírgula e flag de
                 // preenchimento com zero deixam "07" em vez de "7".
-                Text(createTextFromFloat(hour(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = TEXTO_E)
-                Text(":", fontSize = RcSp(72f), color = ACENTO_E)
-                Text(createTextFromFloat(minutes(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = TEXTO_E)
-                Text(":", fontSize = RcSp(72f), color = ACENTO_E)
-                Text(createTextFromFloat(seconds(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = CIANO_E)
+                Text(createTextFromFloat(hour(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = TEXT_S)
+                Text(":", fontSize = RcSp(72f), color = ACCENT_S)
+                Text(createTextFromFloat(minutes(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = TEXT_S)
+                Text(":", fontSize = RcSp(72f), color = ACCENT_S)
+                Text(createTextFromFloat(seconds(), 2, 0, PAD_ZERO), fontSize = RcSp(72f), color = CYAN_S)
             }
         }
 
@@ -241,7 +241,7 @@ fun telaRelogio(): ByteArray = documento(largura = 1080, altura = 460) {
         Text(
             "O servidor não mandou a hora — mandou a instrução de consultá-la.",
             fontSize = RcSp(15f),
-            color = FRACO_E,
+            color = MUTED_S,
         )
     }
 }
@@ -256,19 +256,19 @@ fun telaRelogio(): ByteArray = documento(largura = 1080, altura = 460) {
 private const val PAD_ZERO = 2
 
 /** Um botão que altera estado interno em vez de avisar o app. */
-private fun RcScope.botaoEstado(
-    texto: String,
-    cor: Int,
-    acao: androidx.compose.remote.creation.dsl.RcActionScope.() -> Unit,
+private fun RcScope.stateButton(
+    text: String,
+    color: Int,
+    action: androidx.compose.remote.creation.dsl.RcActionScope.() -> Unit,
 ) {
     Box(
         modifier = Modifier
             .horizontalWeight(1f)
-            .background(cor)
+            .background(color)
             .clip(RoundedRectShape(14f, 14f, 14f, 14f))
             .padding(20f)
-            .onClick { acao() },
+            .onClick { action() },
     ) {
-        Text(texto, fontSize = RcSp(24f), color = 0xFF14141B.toInt())
+        Text(text, fontSize = RcSp(24f), color = 0xFF14141B.toInt())
     }
 }

@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.remoto
+package dev.rafaz.remotecomposelab.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
  * eterna negociação de contrato com o time de backend. Aqui a resposta HTTP
  * já É a tela.
  */
-object ClienteDeDocumentos {
+object DocumentClient {
 
     /**
      * 10.0.2.2 é como o emulador do Android enxerga o `localhost` da sua
@@ -35,8 +35,8 @@ object ClienteDeDocumentos {
     private val http = HttpClient(OkHttp)
 
     /** Devolve os bytes crus do documento, ou lança em caso de erro. */
-    suspend fun buscar(caminho: String): ByteArray {
-        val resposta: HttpResponse = http.get("$BASE$caminho")
+    suspend fun fetch(path: String): ByteArray {
+        val resposta: HttpResponse = http.get("$BASE$path")
         if (!resposta.status.isSuccess()) {
             error("servidor respondeu ${resposta.status}")
         }
@@ -55,8 +55,8 @@ object ClienteDeDocumentos {
      * Server-Driven UI não significa "tudo vira documento". Significa saber
      * onde traçar a linha.
      */
-    suspend fun buscarTelas(): List<TelaRemota> {
-        val corpo = String(buscar("/telas"), Charsets.UTF_8)
+    suspend fun fetchScreens(): List<RemoteScreen> {
+        val corpo = String(fetch("/telas"), Charsets.UTF_8)
         return json.decodeFromString(corpo)
     }
 
@@ -66,15 +66,15 @@ object ClienteDeDocumentos {
 /**
  * Metadado de uma tela disponível no servidor.
  *
- * [altura] é a altura de referência que o documento declara. O player precisa
+ * [height] é a altura de referência que o documento declara. O player precisa
  * dela para escalar o conteúdo — e ela vem do servidor de propósito. Antes o
  * app tinha um `when (id)` com as alturas chumbadas, e isso quebrava sempre
  * que o servidor mudava uma tela.
  */
 @Serializable
-data class TelaRemota(
+data class RemoteScreen(
     val id: String,
-    val titulo: String,
-    val ensina: String,
-    val altura: Int,
+    val title: String,
+    val teaches: String,
+    val height: Int,
 )

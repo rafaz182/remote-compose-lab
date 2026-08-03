@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -20,14 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import dev.rafaz.remotecomposelab.remoto.ClienteDeDocumentos
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remote.DocumentClient
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.Stage
 import kotlinx.coroutines.launch
-import androidx.compose.remote.player.view.RemoteComposePlayer as PlayerDeView
+import androidx.compose.remote.player.view.RemoteComposePlayer as viewPlayer
 
 /**
  * AULA 06 — O experimento dos dois players
@@ -68,18 +68,18 @@ import androidx.compose.remote.player.view.RemoteComposePlayer as PlayerDeView
  * duplicada — só que agora a variável trocada é o player.
  */
 @Composable
-fun L06DoisPlayers() {
-    val escopo = rememberCoroutineScope()
+fun L06TwoPlayers() {
+    val scope = rememberCoroutineScope()
     var bytes by remember { mutableStateOf<ByteArray?>(null) }
-    var erro by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     // Guardamos a instância da View para poder falar com ela depois.
-    var playerDeView by remember { mutableStateOf<PlayerDeView?>(null) }
-    var resultadoStateUpdater by remember { mutableStateOf<String?>(null) }
+    var viewPlayer by remember { mutableStateOf<viewPlayer?>(null) }
+    var stateUpdaterResult by remember { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "Os dois quadros abaixo recebem EXATAMENTE os mesmos bytes — o " +
                 "mesmo documento, baixado uma vez só. A única diferença é quem " +
                 "os executa.\n\n" +
@@ -87,7 +87,7 @@ fun L06DoisPlayers() {
                 "outro não, descobrimos onde está o defeito.",
         )
 
-        BlocoCodigo(
+        CodeBlock(
             """
             // no servidor, dentro do documento:
             val valor = PonteRc.valorFloat(writer, 1f)
@@ -98,22 +98,22 @@ fun L06DoisPlayers() {
 
         Button(
             onClick = {
-                escopo.launch {
-                    runCatching { ClienteDeDocumentos.buscar("/documento/tela/contador") }
-                        .onSuccess { bytes = it; erro = null }
-                        .onFailure { erro = it.message ?: it.toString() }
+                scope.launch {
+                    runCatching { DocumentClient.fetch("/documento/tela/contador") }
+                        .onSuccess { bytes = it; error = null }
+                        .onFailure { error = it.message ?: it.toString() }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text(if (bytes == null) "Baixar o documento" else "Baixar de novo") }
 
-        erro?.let {
-            Destaque("Falhou: $it\n\nO servidor está no ar?", cor = Cores.Alerta)
+        error?.let {
+            Callout("Falhou: $it\n\nO servidor está no ar?", color = Palette.Warning)
         }
 
         bytes?.let { b ->
             // ── Player A: o de Compose (o que usamos em todas as aulas) ──
-            Palco("A · player de Compose", corBorda = Cores.Leitura) {
+            Stage("A · player de Compose", borderColor = Palette.Read) {
                 RemoteComposePlayer(
                     RemoteDocument(b),
                     Modifier.fillMaxWidth().height(200.dp),
@@ -131,24 +131,24 @@ fun L06DoisPlayers() {
             //
             // Repare que aqui NÃO existe wrapper nenhum: é o player original
             // do AndroidX, recebendo os bytes crus.
-            Palco("B · player de View (a camada de baixo)", corBorda = Cores.Escrita) {
+            Stage("B · player de View (a camada de baixo)", borderColor = Palette.Write) {
                 AndroidView(
                     modifier = Modifier.fillMaxWidth().height(200.dp),
-                    factory = { contexto ->
-                        PlayerDeView(contexto).apply {
+                    factory = { context ->
+                        viewPlayer(context).apply {
                             layoutParams = ViewGroup.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                             )
                             setDocument(b)
-                            playerDeView = this
+                            viewPlayer = this
                         }
                     },
                     update = { player -> player.setDocument(b) },
                 )
             }
 
-            Explicacao(
+            Explanation(
                 "Toque nos botões +1 e −1 dentro de cada quadro. O número " +
                     "deveria mudar.",
             )
@@ -166,18 +166,18 @@ fun L06DoisPlayers() {
             Button(
                 onClick = {
                     runCatching {
-                        playerDeView?.stateUpdater?.setUserLocalFloat("contador", 99f)
-                        resultadoStateUpdater = "chamado — olhe o quadro B"
-                    }.onFailure { resultadoStateUpdater = "falhou: ${it.message}" }
+                        viewPlayer?.stateUpdater?.setUserLocalFloat("contador", 99f)
+                        stateUpdaterResult = "chamado — olhe o quadro B"
+                    }.onFailure { stateUpdaterResult = "falhou: ${it.message}" }
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("Mudar para 99 de FORA (StateUpdater)") }
 
-            resultadoStateUpdater?.let {
-                Text(it, color = Cores.Bytes, fontSize = 13.sp)
+            stateUpdaterResult?.let {
+                Text(it, color = Palette.Bytes, fontSize = 13.sp)
             }
 
-            BlocoCodigo(
+            CodeBlock(
                 """
                 // no APP, sem baixar documento novo:
                 playerDeView.stateUpdater
@@ -185,7 +185,7 @@ fun L06DoisPlayers() {
                 """,
             )
 
-            Destaque(
+            Callout(
                 "RESULTADO: nenhum dos três caminhos muda o valor.\n\n" +
                     "• botão dentro do documento, player de Compose → nada\n" +
                     "• botão dentro do documento, player de View → nada\n" +
@@ -193,10 +193,10 @@ fun L06DoisPlayers() {
                     "Isso REFUTA a hipótese que eu tinha: não é o invólucro de " +
                     "Compose. Os dois players se comportam igual, então a " +
                     "diferença entre eles não é a causa.",
-                cor = Cores.Alerta,
+                color = Palette.Warning,
             )
 
-            Destaque(
+            Callout(
                 "O que sobra, e é bem mais provável: o valor não está sendo " +
                     "REGISTRADO com o nome/domínio que esses mecanismos " +
                     "procuram. Repare que `StateUpdater` tem um método " +
@@ -207,11 +207,11 @@ fun L06DoisPlayers() {
                     "Ou seja: a suspeita agora recai sobre o MEU código, não " +
                     "sobre a biblioteca. É uma conclusão menos glamourosa e " +
                     "mais provável — e foi o experimento que a produziu.",
-                cor = Cores.Escrita,
+                color = Palette.Write,
             )
         }
 
-        Destaque(
+        Callout(
             "A lição que fica, independente do resultado: quando um sistema " +
                 "tem duas implementações da mesma coisa, você ganhou um " +
                 "experimento de graça. Rodar o mesmo dado nas duas e comparar " +

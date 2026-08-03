@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,15 +29,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.remoto.ClienteDeDocumentos
-import dev.rafaz.remotecomposelab.remoto.TelaRemota
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.LinhaMetrica
-import dev.rafaz.remotecomposelab.ui.Palco
-import dev.rafaz.remotecomposelab.ui.TituloSecao
+import dev.rafaz.remotecomposelab.remote.DocumentClient
+import dev.rafaz.remotecomposelab.remote.RemoteScreen
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.MetricRow
+import dev.rafaz.remotecomposelab.ui.Stage
+import dev.rafaz.remotecomposelab.ui.SectionTitle
 import kotlinx.coroutines.launch
 
 /**
@@ -47,92 +47,92 @@ import kotlinx.coroutines.launch
  * caminho de volta: eventos saindo do documento para o app.
  */
 @Composable
-fun L05GaleriaDoServidor() {
-    val escopo = rememberCoroutineScope()
+fun L05ServerGallery() {
+    val scope = rememberCoroutineScope()
 
-    var telas by remember { mutableStateOf<List<TelaRemota>>(emptyList()) }
-    var selecionada by remember { mutableStateOf<TelaRemota?>(null) }
-    var documento by remember { mutableStateOf<RemoteDocument?>(null) }
-    var tamanho by remember { mutableStateOf(0) }
-    var erro by remember { mutableStateOf<String?>(null) }
+    var SCREENS by remember { mutableStateOf<List<RemoteScreen>>(emptyList()) }
+    var selected by remember { mutableStateOf<RemoteScreen?>(null) }
+    var document by remember { mutableStateOf<RemoteDocument?>(null) }
+    var size by remember { mutableStateOf(0) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     // O histórico de ações que o DOCUMENTO mandou para o APP.
-    val acoesRecebidas = remember { mutableStateListOf<String>() }
+    val receivedActions = remember { mutableStateListOf<String>() }
 
-    fun carregarCatalogo() {
-        escopo.launch {
-            runCatching { ClienteDeDocumentos.buscarTelas() }
-                .onSuccess { telas = it; erro = null }
-                .onFailure { erro = it.message ?: it.toString() }
+    fun loadCatalog() {
+        scope.launch {
+            runCatching { DocumentClient.fetchScreens() }
+                .onSuccess { SCREENS = it; error = null }
+                .onFailure { error = it.message ?: it.toString() }
         }
     }
 
-    fun abrir(tela: TelaRemota) {
-        escopo.launch {
-            runCatching { ClienteDeDocumentos.buscar("/documento/tela/${tela.id}") }
+    fun open(screen: RemoteScreen) {
+        scope.launch {
+            runCatching { DocumentClient.fetch("/documento/tela/${screen.id}") }
                 .onSuccess { bytes ->
-                    tamanho = bytes.size
-                    selecionada = tela
+                    size = bytes.size
+                    selected = screen
                     val doc = RemoteDocument(bytes)
                     // Diagnóstico: `stats` nomeia as operações presentes no
                     // documento. É a forma mais direta de responder "o que o
                     // servidor gravou de verdade aqui dentro?".
                     android.util.Log.i(
                         "RemoteComposeLab",
-                        "[${tela.id}] ${doc.width}x${doc.height} :: " +
+                        "[${screen.id}] ${doc.width}x${doc.height} :: " +
                             doc.stats.joinToString(" ; "),
                     )
-                    documento = doc
-                    acoesRecebidas.clear()
-                    erro = null
+                    document = doc
+                    receivedActions.clear()
+                    error = null
                 }
-                .onFailure { erro = it.message ?: it.toString() }
+                .onFailure { error = it.message ?: it.toString() }
         }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "Cinco telas, todas desenhadas no servidor, em ordem de " +
                 "dificuldade. Nenhum componente delas existe no código deste " +
                 "app — nem cartão, nem lista, nem botão.\n\n" +
                 "Suba o servidor e carregue o catálogo:",
         )
-        BlocoCodigo(".\\gradlew.bat :server:run")
+        CodeBlock(".\\gradlew.bat :server:run")
 
-        Button(onClick = { carregarCatalogo() }, modifier = Modifier.fillMaxWidth()) {
-            Text(if (telas.isEmpty()) "Carregar catálogo" else "Recarregar catálogo")
+        Button(onClick = { loadCatalog() }, modifier = Modifier.fillMaxWidth()) {
+            Text(if (SCREENS.isEmpty()) "Carregar catálogo" else "Recarregar catálogo")
         }
 
-        erro?.let {
-            Destaque(
+        error?.let {
+            Callout(
                 "Falhou: $it\n\nO servidor está no ar? (.\\gradlew.bat :server:run)",
-                cor = Cores.Alerta,
+                color = Palette.Warning,
             )
         }
 
         // ── O menu vem em JSON; as telas vêm em bytes ────────────────────
-        if (telas.isNotEmpty()) {
-            TituloSecao("Telas disponíveis", Cores.Escrita)
-            telas.forEach { tela ->
-                val ativa = selecionada?.id == tela.id
+        if (SCREENS.isNotEmpty()) {
+            SectionTitle("Telas disponíveis", Palette.Write)
+            SCREENS.forEach { screen ->
+                val active = selected?.id == screen.id
                 Column(
                     Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (ativa) Cores.Escrita.copy(alpha = 0.16f) else Cores.Superficie)
+                        .background(if (active) Palette.Write.copy(alpha = 0.16f) else Palette.Surface)
                         .border(
                             1.dp,
-                            if (ativa) Cores.Escrita else Cores.SuperficieAlta,
+                            if (active) Palette.Write else Palette.SurfaceHigh,
                             RoundedCornerShape(12.dp),
                         )
-                        .clickable { abrir(tela) }
+                        .clickable { open(screen) }
                         .padding(14.dp),
                 ) {
-                    Text(tela.titulo, color = Cores.Texto, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(screen.title, color = Palette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Text(
-                        tela.ensina,
-                        color = Cores.TextoFraco,
+                        screen.teaches,
+                        color = Palette.TextMuted,
                         fontSize = 13.sp,
                         modifier = Modifier.padding(top = 2.dp),
                     )
@@ -142,14 +142,14 @@ fun L05GaleriaDoServidor() {
         }
 
         // ── O palco ──────────────────────────────────────────────────────
-        documento?.let { doc ->
-            Palco("Renderizado do documento · ${selecionada?.titulo}") {
+        document?.let { doc ->
+            Stage("Renderizado do documento · ${selected?.title}") {
                 RemoteComposePlayer(
                     doc,
-                    Modifier.fillMaxWidth().height(alturaDoPalco(selecionada?.id)),
+                    Modifier.fillMaxWidth().height(stageHeight(selected?.id)),
                     1080,
                     // A altura vem do CATÁLOGO, não de um `when` no app.
-                    selecionada?.altura ?: 400,
+                    selected?.height ?: 400,
                     // O relógio que o documento consulta. Ele é obrigatório
                     // porque o formato prevê valores que dependem do TEMPO —
                     // animações, contadores, watch faces. Nenhuma das nossas
@@ -158,47 +158,47 @@ fun L05GaleriaDoServidor() {
                     // O CAMINHO DE VOLTA: toda ação nomeada que o documento
                     // disparar cai aqui. É o único ponto de contato entre o
                     // conteúdo remoto e o seu código.
-                    { nome, valor, _ ->
-                        acoesRecebidas.add(if (valor == null) nome else "$nome  (valor=$valor)")
+                    { name, value, _ ->
+                        receivedActions.add(if (value == null) name else "$name  (valor=$value)")
                     },
                 )
             }
             Column(Modifier.fillMaxWidth()) {
-                LinhaMetrica("documento", "$tamanho bytes")
-                LinhaMetrica("origem", "${ClienteDeDocumentos.BASE}/documento/tela/${selecionada?.id}")
+                MetricRow("documento", "$size bytes")
+                MetricRow("origem", "${DocumentClient.BASE}/documento/tela/${selected?.id}")
             }
         }
 
         // ── O que o documento mandou de volta ────────────────────────────
-        if (selecionada?.id == "interativo") {
-            Explicacao(
+        if (selected?.id == "interativo") {
+            Explanation(
                 "Toque nos botões acima. Cada um dispara uma ação nomeada — uma " +
                     "string — que aparece na lista abaixo. Este app não sabe o " +
                     "que é um SKU, não sabe o que é \"favoritar\". Ele só recebe " +
                     "texto e decide o que fazer.",
             )
 
-            TituloSecao("Ações recebidas do documento", Cores.Leitura)
-            if (acoesRecebidas.isEmpty()) {
+            SectionTitle("Ações recebidas do documento", Palette.Read)
+            if (receivedActions.isEmpty()) {
                 Text(
                     "(nenhuma ainda — toque nos botões)",
-                    color = Cores.TextoFraco,
+                    color = Palette.TextMuted,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(top = 6.dp),
                 )
             } else {
-                acoesRecebidas.forEach { acao ->
+                receivedActions.forEach { action ->
                     Row(
                         Modifier
                             .fillMaxWidth()
                             .padding(top = 6.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Cores.Leitura.copy(alpha = 0.12f))
+                            .background(Palette.Read.copy(alpha = 0.12f))
                             .padding(10.dp),
                     ) {
                         Text(
-                            acao,
-                            color = Cores.Leitura,
+                            action,
+                            color = Palette.Read,
                             fontSize = 13.sp,
                             fontFamily = FontFamily.Monospace,
                         )
@@ -206,7 +206,7 @@ fun L05GaleriaDoServidor() {
                 }
             }
 
-            BlocoCodigo(
+            CodeBlock(
                 """
                 // no SERVIDOR, ao desenhar o botão:
                 Box(
@@ -222,25 +222,25 @@ fun L05GaleriaDoServidor() {
                 """,
             )
 
-            Destaque(
+            Callout(
                 "Repare no contrato: é uma STRING. Nada de schema, nada de DTO, " +
                     "nada de versão. O servidor inventa nomes; o app reage aos " +
                     "que conhece e ignora com segurança os que não conhece. É o " +
                     "mesmo padrão de deep link — e tem a mesma virtude, que é " +
                     "acoplamento quase zero.",
-                cor = Cores.Leitura,
+                color = Palette.Read,
             )
         }
 
-        if (documento != null) {
-            Destaque(
+        if (document != null) {
+            Callout(
                 "Todas as cinco telas usam os mesmos poucos primitivos: Column, " +
                     "Row, Box, Text e modificadores. Não existe \"componente " +
                     "cartão\", não existe \"componente lista\", não existe " +
                     "\"componente divisória\" — divisória é um Box de 2px de " +
                     "altura. O formato só conhece formas, e isso é justamente o " +
                     "que permite ele desenhar coisas que o app nunca viu.",
-                cor = Cores.Escrita,
+                color = Palette.Write,
             )
         }
     }
@@ -253,7 +253,7 @@ fun L05GaleriaDoServidor() {
  * DOCUMENTO e vem do servidor. Esta aqui é decisão de layout do app: quanto
  * espaço eu quero dar para exibir aquilo.
  */
-private fun alturaDoPalco(id: String?) = when (id) {
+private fun stageHeight(id: String?) = when (id) {
     "produtos" -> 340.dp
     "recibo", "interativo", "contador" -> 300.dp
     else -> 220.dp

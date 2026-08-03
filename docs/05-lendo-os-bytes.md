@@ -11,7 +11,7 @@ ter o código-fonte.
 Tudo aqui foi verificado com a ferramenta do repositório:
 
 ```powershell
-.\gradlew.bat :server:runDissecar
+.\gradlew.bat :server:runDissect
 ```
 
 ---
@@ -419,9 +419,9 @@ Ficaram bytes sem decodificar — os offsets 1 a 12 e 21 a 28 do cabeçalho.
 ## As ferramentas
 
 ```powershell
-.\gradlew.bat :server:runDissecar   # tabela de opcodes + dumps + diferencial
-.\gradlew.bat :server:runSonda      # varredura de apiLevel
+.\gradlew.bat :server:runDissect   # tabela de opcodes + dumps + diferencial
+.\gradlew.bat :server:runProbe      # varredura de apiLevel
 ```
 
-Código em `server/src/main/kotlin/.../Dissecar.kt`. São ~100 linhas —
+Código em `server/src/main/kotlin/.../Dissect.kt`. São ~100 linhas —
 vale ler, porque a técnica vale para qualquer formato binário, não só este.

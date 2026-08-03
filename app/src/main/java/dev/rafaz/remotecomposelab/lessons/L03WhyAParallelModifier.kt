@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,12 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remote.rememberDocument
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.Stage
 
 /**
  * AULA 03 — Por que existe um Modifier paralelo?
@@ -40,22 +40,22 @@ import dev.rafaz.remotecomposelab.ui.Palco
  * A resposta é bonita e explica o resto da biblioteca.
  */
 @Composable
-fun L03PorQueUmModifierParalelo() {
+fun L03WhyAParallelModifier() {
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "Você já reparou que quase tudo tem um gêmeo com prefixo Remote: " +
                 "Column/RemoteColumn, Text/RemoteText, Modifier/RemoteModifier, " +
                 "dp/rdp, sp/rsp.\n\n" +
                 "Não é frescura de nomenclatura. É uma consequência inevitável.",
         )
 
-        Destaque(
+        Callout(
             "Um Modifier normal EXECUTA. Um RemoteModifier é GRAVADO.",
-            cor = Cores.Escrita,
+            color = Palette.Write,
         )
 
-        Explicacao(
+        Explanation(
             "Pense no que Modifier.padding(16.dp) realmente é: um objeto que, na " +
                 "hora do layout, roda código Kotlin dentro do seu processo para " +
                 "encolher as restrições de medida. Ele só existe enquanto o seu app " +
@@ -66,7 +66,7 @@ fun L03PorQueUmModifierParalelo() {
                 "serializar um objeto que é, essencialmente, um pedaço de código.",
         )
 
-        BlocoCodigo(
+        CodeBlock(
             """
             Modifier.padding(16.dp)
                 └─▶ objeto vivo na memória, roda no SEU processo
@@ -78,7 +78,7 @@ fun L03PorQueUmModifierParalelo() {
             """,
         )
 
-        Explicacao(
+        Explanation(
             "É a mesma razão pela qual existe rdp em vez de dp. Um Dp é um valor " +
                 "fixo. Um RemoteDp pode ser uma EXPRESSÃO que o player calcula na " +
                 "hora — dependendo do tamanho da tela dele, não da sua. O documento " +
@@ -87,7 +87,7 @@ fun L03PorQueUmModifierParalelo() {
         )
 
         // ── Demonstração: modificadores compostos, gravados no documento ────
-        val doc = lembrarDocumento {
+        val doc = rememberDocument {
             RemoteColumn(
                 modifier = RemoteModifier
                     .fillMaxWidth()
@@ -110,11 +110,11 @@ fun L03PorQueUmModifierParalelo() {
                         Color(0xFF81C784),
                         Color(0xFF64B5F6),
                         Color(0xFFFFD54F),
-                    ).forEach { cor ->
+                    ).forEach { color ->
                         RemoteBox(
                             modifier = RemoteModifier
                                 .size(44.rdp)
-                                .background(cor),
+                                .background(color),
                         )
                         RemoteSpacer(RemoteModifier.size(8.rdp))
                     }
@@ -130,26 +130,26 @@ fun L03PorQueUmModifierParalelo() {
             }
         }
 
-        Palco("Gravado e executado pelo player") {
+        Stage("Gravado e executado pelo player") {
             if (doc == null) {
-                Text("gravando…", color = Cores.TextoFraco, fontSize = 13.sp)
+                Text("gravando…", color = Palette.TextMuted, fontSize = 13.sp)
             } else {
                 RemoteComposePlayer(
-                    document = doc.documento,
+                    document = doc.document,
                     modifier = Modifier.fillMaxWidth().height(180.dp),
                 )
             }
         }
 
         if (doc != null) {
-            Explicacao(
-                "Aqueles quatro quadrados custaram ${doc.tamanhoBytes} bytes no total " +
+            Explanation(
+                "Aqueles quatro quadrados custaram ${doc.sizeInBytes} bytes no total " +
                     "— documento inteiro, incluindo os textos. Documentos são baratos, " +
                     "e isso é proposital: eles foram feitos para trafegar.",
             )
         }
 
-        Destaque(
+        Callout(
             "Regra prática para não se perder: se o valor precisa SOBREVIVER à " +
                 "serialização, ele tem uma versão Remote. Se ele só existe na sua " +
                 "tela, use o tipo normal. Quando você misturar os dois sem querer, o " +

@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.licoes
+package dev.rafaz.remotecomposelab.lessons
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,14 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.remoto.ClienteDeDocumentos
-import dev.rafaz.remotecomposelab.remoto.lembrarDocumento
-import dev.rafaz.remotecomposelab.ui.BlocoCodigo
-import dev.rafaz.remotecomposelab.ui.Cores
-import dev.rafaz.remotecomposelab.ui.Destaque
-import dev.rafaz.remotecomposelab.ui.Explicacao
-import dev.rafaz.remotecomposelab.ui.LinhaMetrica
-import dev.rafaz.remotecomposelab.ui.Palco
+import dev.rafaz.remotecomposelab.remote.DocumentClient
+import dev.rafaz.remotecomposelab.remote.rememberDocument
+import dev.rafaz.remotecomposelab.ui.CodeBlock
+import dev.rafaz.remotecomposelab.ui.Palette
+import dev.rafaz.remotecomposelab.ui.Callout
+import dev.rafaz.remotecomposelab.ui.Explanation
+import dev.rafaz.remotecomposelab.ui.MetricRow
+import dev.rafaz.remotecomposelab.ui.Stage
 import kotlinx.coroutines.launch
 
 /**
@@ -48,23 +48,23 @@ import kotlinx.coroutines.launch
  * vindos de um servidor Ktor que **não tem uma linha de Android**.
  */
 @Composable
-fun L04FrontXBack() {
-    val escopo = rememberCoroutineScope()
+fun L04FrontVsBack() {
+    val scope = rememberCoroutineScope()
 
-    var documento by remember { mutableStateOf<RemoteDocument?>(null) }
-    var tamanho by remember { mutableStateOf(0) }
-    var origem by remember { mutableStateOf("") }
-    var erro by remember { mutableStateOf<String?>(null) }
-    var carregando by remember { mutableStateOf(false) }
+    var document by remember { mutableStateOf<RemoteDocument?>(null) }
+    var size by remember { mutableStateOf(0) }
+    var source by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(false) }
 
-    fun buscar(caminho: String, rotulo: String) {
-        escopo.launch {
-            carregando = true
-            erro = null
-            runCatching { ClienteDeDocumentos.buscar(caminho) }
+    fun fetch(path: String, label: String) {
+        scope.launch {
+            loading = true
+            error = null
+            runCatching { DocumentClient.fetch(path) }
                 .onSuccess { bytes ->
-                    tamanho = bytes.size
-                    origem = rotulo
+                    size = bytes.size
+                    source = label
                     val doc = RemoteDocument(bytes)
                     // Diagnóstico: o documento sabe o próprio tamanho?
                     // Um documento 0x0 renderiza uma tela em branco sem
@@ -74,16 +74,16 @@ fun L04FrontXBack() {
                         "doc ${doc.width}x${doc.height} | stats=" +
                             doc.stats.joinToString(" ; "),
                     )
-                    documento = doc
+                    document = doc
                 }
-                .onFailure { erro = it.message ?: it.toString() }
-            carregando = false
+                .onFailure { error = it.message ?: it.toString() }
+            loading = false
         }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
-        Explicacao(
+        Explanation(
             "Até agora eu te devia uma. As Aulas 01 a 03 mostravam o documento " +
                 "indo e voltando dentro do mesmo processo — honesto como " +
                 "demonstração do conceito, mas não era rede.\n\n" +
@@ -91,22 +91,22 @@ fun L04FrontXBack() {
                 "pura. Ele gera os documentos e devolve por HTTP.",
         )
 
-        Destaque(
+        Callout(
             "O servidor NÃO tem Android no classpath. Ele depende de exatamente " +
                 "três artefatos: remote-core, remote-creation-core e " +
                 "remote-creation-jvm — os três são JAR puro. Era teoria em " +
                 "docs/02; agora está rodando.",
-            cor = Cores.Escrita,
+            color = Palette.Write,
         )
 
-        Explicacao("Antes de tocar nos botões, suba o servidor:")
-        BlocoCodigo(".\\gradlew.bat :server:run")
+        Explanation("Antes de tocar nos botões, suba o servidor:")
+        CodeBlock(".\\gradlew.bat :server:run")
 
-        Explicacao(
+        Explanation(
             "Repare no que o endpoint devolve. Não é JSON descrevendo uma tela — " +
                 "é a tela:",
         )
-        BlocoCodigo(
+        CodeBlock(
             """
             GET /documento/boas-vindas?nome=Rafael
 
@@ -117,19 +117,19 @@ fun L04FrontXBack() {
             """,
         )
 
-        Destaque(
+        Callout(
             "Chegar até aqui deu trabalho: foram quatro armadilhas seguidas, " +
                 "todas com o mesmo sintoma — tela em branco, sem erro nenhum. " +
                 "Estão documentadas uma a uma em docs/03-diario-de-bordo.md, " +
                 "porque é onde mora o conteúdo que não existe em outro lugar.",
-            cor = Cores.Alerta,
+            color = Palette.Warning,
         )
 
         // ── EXPERIMENTO DE CONTROLE ──────────────────────────────────────
         // O MESMO conteúdo, gerado no aparelho. Serve de referência: se este
         // aparece e o do servidor não, a diferença está nos bytes, não no
         // player nem na tela.
-        val local = lembrarDocumento {
+        val local = rememberDocument {
             RemoteColumn(
                 modifier = RemoteModifier
                     .fillMaxWidth()
@@ -148,16 +148,16 @@ fun L04FrontXBack() {
             local?.let {
                 android.util.Log.i(
                     "RemoteComposeLab",
-                    "LOCAL ${it.documento.width}x${it.documento.height} " +
-                        "(${it.tamanhoBytes} bytes) | stats=" +
-                        it.documento.stats.joinToString(" ; "),
+                    "LOCAL ${it.document.width}x${it.document.height} " +
+                        "(${it.sizeInBytes} bytes) | stats=" +
+                        it.document.stats.joinToString(" ; "),
                 )
             }
         }
         if (local != null) {
-            Palco("Controle: gerado no aparelho", corBorda = Cores.Escrita) {
+            Stage("Controle: gerado no aparelho", borderColor = Palette.Write) {
                 RemoteComposePlayer(
-                    document = local.documento,
+                    document = local.document,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                 )
             }
@@ -165,35 +165,35 @@ fun L04FrontXBack() {
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Button(
-                onClick = { buscar("/documento/boas-vindas?nome=Rafael", "boas-vindas") },
-                enabled = !carregando,
+                onClick = { fetch("/documento/boas-vindas?nome=Rafael", "boas-vindas") },
+                enabled = !loading,
                 modifier = Modifier.weight(1f),
             ) { Text("Boas-vindas") }
 
             OutlinedButton(
-                onClick = { buscar("/documento/promocao", "promoção") },
-                enabled = !carregando,
+                onClick = { fetch("/documento/promocao", "promoção") },
+                enabled = !loading,
                 modifier = Modifier.weight(1f),
             ) { Text("Promoção") }
         }
 
         when {
-            carregando -> Text("buscando no servidor…", color = Cores.TextoFraco, fontSize = 13.sp)
+            loading -> Text("buscando no servidor…", color = Palette.TextMuted, fontSize = 13.sp)
 
-            erro != null -> {
-                Destaque(
-                    "Falhou: $erro\n\n" +
+            error != null -> {
+                Callout(
+                    "Falhou: $error\n\n" +
                         "Quase sempre é uma destas três coisas: o servidor não " +
                         "está no ar (.\\gradlew.bat :server:run), você está num " +
                         "aparelho físico em vez do emulador (aí 10.0.2.2 não " +
                         "existe — use o IP da sua máquina), ou o firewall do " +
                         "Windows bloqueou a porta 8080.",
-                    cor = Cores.Alerta,
+                    color = Palette.Warning,
                 )
             }
 
-            documento != null -> {
-                Palco("Veio do servidor · $origem") {
+            document != null -> {
+                Stage("Veio do servidor · $source") {
                     // width/height explícitos: o documento vindo da JVM se
                     // declara 0x0 (ver diário de bordo), então dizemos ao
                     // player qual área ele deve usar.
@@ -201,28 +201,28 @@ fun L04FrontXBack() {
                     // modifier são largura e altura, e a lib não expõe os
                     // nomes desses parâmetros de forma utilizável.
                     RemoteComposePlayer(
-                        documento!!,
+                        document!!,
                         Modifier.fillMaxWidth().height(150.dp),
                         1080,
                         600,
                     )
                 }
                 Column(Modifier.fillMaxWidth()) {
-                    LinhaMetrica("recebido", "$tamanho bytes")
-                    LinhaMetrica("origem", ClienteDeDocumentos.BASE)
-                    LinhaMetrica("content-type", "application/octet-stream")
+                    MetricRow("recebido", "$size bytes")
+                    MetricRow("origem", DocumentClient.BASE)
+                    MetricRow("content-type", "application/octet-stream")
                 }
             }
         }
 
-        Destaque(
+        Callout(
             "Agora a parte divertida. Com o app aberto nesta tela, mude a " +
                 "promoção pelo terminal e toque em \"Promoção\" de novo. A " +
                 "interface muda sem recompilar, sem reinstalar, sem passar pela " +
                 "loja.",
         )
 
-        BlocoCodigo(
+        CodeBlock(
             """
             # muda a promoção
             curl -X PUT http://localhost:8080/promocao ^
@@ -234,20 +234,20 @@ fun L04FrontXBack() {
             """,
         )
 
-        Explicacao(
+        Explanation(
             "Quando você desliga a promoção, o servidor devolve um documento " +
                 "diferente — não um campo nulo para o app interpretar. Quem " +
                 "decidiu o que mostrar foi o servidor, inteiramente.",
         )
 
-        Destaque(
+        Callout(
             "Compare com o SDUI de JSON: lá, \"promoção desligada\" seria um " +
                 "campo que o app precisa saber tratar, e mostrar algo diferente " +
                 "exigiria que o app já tivesse aquele componente pronto. Aqui o " +
                 "servidor manda um desenho novo. O app não sabe nem que existe o " +
                 "conceito de promoção — e é justamente por isso que ele nunca " +
                 "precisa de release.",
-            cor = Cores.Leitura,
+            color = Palette.Read,
         )
     }
 }

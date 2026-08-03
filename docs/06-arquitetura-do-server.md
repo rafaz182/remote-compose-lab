@@ -17,13 +17,13 @@ server/
 ├── build.gradle.kts
 └── src/main/
     ├── kotlin/dev/rafaz/remotecomposelab/server/
-    │   ├── Servidor.kt          ← [HTTP]        Ktor: rotas, portas, JSON
-    │   ├── Documentos.kt        ← [MOTOR]       a UI que o servidor desenha
+    │   ├── Server.kt          ← [HTTP]        Ktor: rotas, portas, JSON
+    │   ├── Documents.kt        ← [MOTOR]       a UI que o servidor desenha
     │   ├── RemoteComposeJvm.kt  ← [MOTOR]       encanamento do Remote Compose
-    │   ├── Sonda.kt             ← [FERRAMENTA]  investigação, não é produto
-    │   └── Dissecar.kt          ← [FERRAMENTA]  investigação, não é produto
+    │   ├── Probe.kt             ← [FERRAMENTA]  investigação, não é produto
+    │   └── Dissect.kt          ← [FERRAMENTA]  investigação, não é produto
     └── java/dev/rafaz/remotecomposelab/server/
-        └── PonteRc.java         ← [MOTOR]       contorna um `internal` do Kotlin
+        └── RcBridge.java         ← [MOTOR]       contorna um `internal` do Kotlin
 ```
 
 Três categorias, e vale gravar a diferença:
@@ -89,7 +89,7 @@ um caminho e um bloco.
 Sobe o servidor. `wait = true` significa "bloqueie esta thread para sempre" —
 senão o `main()` terminaria e o processo morreria junto.
 
-## O que o nosso `Servidor.kt` acrescenta
+## O que o nosso `Server.kt` acrescenta
 
 ```kotlin
 embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
@@ -136,7 +136,7 @@ requisição. Você liga o que precisa; nada vem por padrão. Usamos dois:
 em JSON e vice-versa, usando `kotlinx.serialization`. É o que faz isto funcionar:
 
 ```kotlin
-call.respond(PromocaoDto("Leve 3", "só até domingo", "R$ 49,90"))
+call.respond(PromoDto("Leve 3", "só até domingo", "R$ 49,90"))
 // vira:  {"chamada":"Leve 3","descricao":"só até domingo","preco":"R$ 49,90"}
 ```
 
@@ -144,14 +144,14 @@ Sem esse plugin, `respond` com um objeto arbitrário dá erro em tempo de
 execução. E é ele que permite o caminho inverso, no `PUT`:
 
 ```kotlin
-val dto = call.receive<PromocaoDto>()   // JSON do corpo -> objeto Kotlin
+val dto = call.receive<PromoDto>()   // JSON do corpo -> objeto Kotlin
 ```
 
 Para isso funcionar, a classe precisa ser marcada:
 
 ```kotlin
 @Serializable
-data class PromocaoDto(val chamada: String, val descricao: String, val preco: String)
+data class PromoDto(val chamada: String, val descricao: String, val preco: String)
 ```
 
 O `@Serializable` é do `kotlinx.serialization`, e é por isso que o módulo aplica
@@ -167,7 +167,7 @@ Dentro de um bloco de rota, `call` representa a requisição atual. Dele saem:
 
 ```kotlin
 call.request.queryParameters["nome"]   // ?nome=Rafael
-call.receive<PromocaoDto>()            // corpo da requisição
+call.receive<PromoDto>()            // corpo da requisição
 call.respond(objeto)                   // resposta como JSON
 call.respondText("texto")              // resposta como texto
 call.respondBytes(bytes, tipo)         // resposta binária  ← a nossa
@@ -196,21 +196,21 @@ Aqui está o ponto mais importante desta página. Este é o endpoint inteiro:
 get("/documento/boas-vindas") {
     val nome = call.request.queryParameters["nome"] ?: "visitante"
     call.respondBytes(
-        documentoBoasVindas(nome),              // ← A FRONTEIRA
+        welcomeDocument(nome),              // ← A FRONTEIRA
         ContentType.Application.OctetStream,
     )
 }
 ```
 
 - Tudo **em volta** é Ktor: pegar o parâmetro, definir o content-type, responder.
-- `documentoBoasVindas(nome)` é o motor. Ele devolve um `ByteArray` e não sabe
+- `welcomeDocument(nome)` é o motor. Ele devolve um `ByteArray` e não sabe
   que existe HTTP.
 
 Prova de que a separação é real: aquela função funcionaria igual dentro de um
 teste, de um `main()`, de um job que grava em disco, ou de um Lambda da AWS.
 
 ```kotlin
-File("home.rc").writeBytes(documentoBoasVindas("Rafael"))   // funciona
+File("home.rc").writeBytes(welcomeDocument("Rafael"))   // funciona
 ```
 
 ### `ContentType.Application.OctetStream`
@@ -268,7 +268,7 @@ na verdade são métodos de um `RcScope` que o Kotlin injeta como `this` invisí
 É o mesmo mecanismo do `routing { get(...) }` do Ktor. Uma vez que você
 reconhece o padrão, quase todo DSL de Kotlin fica legível.
 
-## `PonteRc.java` — três linhas em Java
+## `RcBridge.java` — três linhas em Java
 
 Existe por um motivo específico e vale entender, porque é um truque útil em
 geral: `RcScopeImpl` é marcada `internal` no Kotlin, mas `internal` é uma
@@ -279,13 +279,13 @@ Não é gambiarra de runtime — é usar uma API que o Kotlin esconde porque ain
 não a considera estável. O risco está anotado no arquivo: sendo API interna de
 biblioteca alpha, pode quebrar em qualquer upgrade.
 
-## `Documentos.kt` — a interface propriamente dita
+## `Documents.kt` — a interface propriamente dita
 
 Este é o arquivo que "desenha". Ele não sabe o que é HTTP nem o que é
 `RemoteComposeWriter` — só usa a DSL:
 
 ```kotlin
-fun documentoBoasVindas(nome: String): ByteArray = documento(largura = 1080, altura = 400) {
+fun welcomeDocument(nome: String): ByteArray = documento(largura = 1080, altura = 400) {
     Column(
         modifier = Modifier.fillMaxWidth().background(FUNDO_CARTAO).padding(20f),
     ) {
@@ -308,7 +308,7 @@ Juntando tudo, o que acontece quando você toca em "Boas-vindas" no app:
 ```
  APP (Android)                          SERVIDOR (JVM pura)
  ─────────────                          ───────────────────
- ClienteDeDocumentos.buscar(...)
+ DocumentClient.buscar(...)
    │
    │  GET http://10.0.2.2:8080/documento/boas-vindas?nome=Rafael
    ├───────────────────────────────────────▶
@@ -320,7 +320,7 @@ Juntando tudo, o que acontece quando você toca em "Boas-vindas" no app:
    │                                       │
    │                            ╔══════════▼══════════╗
    │                            ║  FRONTEIRA          ║
-   │                            ║  documentoBoasVindas║
+   │                            ║  welcomeDocument║
    │                            ╚══════════▼══════════╝
    │                                       │
    │                                     monta Profile + Writer
@@ -353,7 +353,7 @@ Estes dois arquivos **não fazem parte do produto**. Eles existem para responder
 perguntas sobre a biblioteca, e ficaram no repositório porque as perguntas
 voltam a cada nova versão.
 
-## `Sonda.kt` — descobrir por varredura
+## `Probe.kt` — descobrir por varredura
 
 **"Sonda"** no sentido de sonda espacial: um programa descartável que a gente
 manda para dentro de território desconhecido só para trazer informação de volta.
@@ -368,17 +368,17 @@ OK    api=6 mask=0 -> 146 bytes
 ```
 
 ```powershell
-.\gradlew.bat :server:runSonda
+.\gradlew.bat :server:runProbe
 ```
 
-## `Dissecar.kt` — enxergar o formato
+## `Dissect.kt` — enxergar o formato
 
 Imprime a tabela das 172 operações (lida por reflexão, então nunca defasa),
 dumps hexadecimais anotados e **análise diferencial** — gera pares de documentos
 que diferem em um parâmetro só e mostra quais bytes mudaram.
 
 ```powershell
-.\gradlew.bat :server:runDissecar
+.\gradlew.bat :server:runDissect
 ```
 
 Foi assim que provamos onde ficam largura e altura, que a densidade não é

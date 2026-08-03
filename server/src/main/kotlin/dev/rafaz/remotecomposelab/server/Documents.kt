@@ -36,36 +36,36 @@ import androidx.compose.remote.creation.dsl.padding
  */
 
 // Paleta. Cores aqui são Int no formato ARGB.
-private const val FUNDO_CARTAO = 0xFF1B3A4B.toInt()
-private const val FUNDO_PROMO = 0xFF4A1B2E.toInt()
-private const val TITULO = 0xFF7FDBFF.toInt()
-private const val TITULO_PROMO = 0xFFFF8FA3.toInt()
-private const val CORPO = 0xFFBFE9FF.toInt()
+private const val CARD_BG = 0xFF1B3A4B.toInt()
+private const val PROMO_BG = 0xFF4A1B2E.toInt()
+private const val TITLE = 0xFF7FDBFF.toInt()
+private const val PROMO_TITLE = 0xFFFF8FA3.toInt()
+private const val BODY = 0xFFBFE9FF.toInt()
 
 /**
  * Boas-vindas personalizadas.
  *
- * Repare que [nome] é um parâmetro do SERVIDOR. O texto é interpolado antes
+ * Repare que [name] é um parâmetro do SERVIDOR. O texto é interpolado antes
  * de virar bytes — o app recebe o documento já personalizado e não faz ideia
  * de que existiu um template.
  */
-fun documentoBoasVindas(nome: String): ByteArray = documento(largura = 1080, altura = 400) {
+fun welcomeDocument(name: String): ByteArray = document(width = 1080, height = 400) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(FUNDO_CARTAO)
+            .background(CARD_BG)
             .padding(20f),
     ) {
-        Text("Olá, $nome!", fontSize = RcSp(22f), color = TITULO)
+        Text("Olá, $name!", fontSize = RcSp(22f), color = TITLE)
         Text(
             "Esta tela foi gerada por um servidor Ktor,",
             fontSize = RcSp(14f),
-            color = CORPO,
+            color = BODY,
         )
         Text(
             "em JVM pura, sem Android nenhum.",
             fontSize = RcSp(14f),
-            color = CORPO,
+            color = BODY,
         )
     }
 }
@@ -76,38 +76,38 @@ fun documentoBoasVindas(nome: String): ByteArray = documento(largura = 1080, alt
  * É a demonstração clássica de Server-Driven UI: o app não precisa de release
  * novo para a promoção aparecer, sumir ou mudar de texto.
  */
-fun documentoPromocao(promo: Promocao?): ByteArray = documento(largura = 1080, altura = 400) {
+fun promoDocument(promo: Promo?): ByteArray = document(width = 1080, height = 400) {
     if (promo == null) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FUNDO_CARTAO)
+                .background(CARD_BG)
                 .padding(20f),
         ) {
-            Text("Nenhuma promoção ativa", fontSize = RcSp(16f), color = CORPO)
+            Text("Nenhuma promoção ativa", fontSize = RcSp(16f), color = BODY)
             Text(
                 "O servidor decidiu não mostrar nada agora.",
                 fontSize = RcSp(13f),
-                color = CORPO,
+                color = BODY,
             )
         }
     } else {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FUNDO_PROMO)
+                .background(PROMO_BG)
                 .padding(20f),
         ) {
-            Text(promo.chamada, fontSize = RcSp(20f), color = TITULO_PROMO)
-            Text(promo.descricao, fontSize = RcSp(14f), color = CORPO)
-            Text("por ${promo.preco}", fontSize = RcSp(17f), color = TITULO_PROMO)
+            Text(promo.headline, fontSize = RcSp(20f), color = PROMO_TITLE)
+            Text(promo.description, fontSize = RcSp(14f), color = BODY)
+            Text("por ${promo.price}", fontSize = RcSp(17f), color = PROMO_TITLE)
         }
     }
 }
 
 /** Estado da promoção, mantido em memória. Trocável por HTTP em tempo real. */
-data class Promocao(
-    val chamada: String,
-    val descricao: String,
-    val preco: String,
+data class Promo(
+    val headline: String,
+    val description: String,
+    val price: String,
 )

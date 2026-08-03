@@ -32,10 +32,10 @@ import androidx.compose.ui.unit.sp
 
 /** Bloco de texto explicativo. O "professor falando". */
 @Composable
-fun Explicacao(texto: String, modifier: Modifier = Modifier) {
+fun Explanation(text: String, modifier: Modifier = Modifier) {
     Text(
-        text = texto,
-        color = Cores.Texto,
+        text = text,
+        color = Palette.TextPrimary,
         fontSize = 15.sp,
         lineHeight = 23.sp,
         modifier = modifier.fillMaxWidth(),
@@ -44,24 +44,24 @@ fun Explicacao(texto: String, modifier: Modifier = Modifier) {
 
 /** Destaque para uma ideia que vale levar embora. */
 @Composable
-fun Destaque(texto: String, cor: Color = Cores.Alerta, modifier: Modifier = Modifier) {
+fun Callout(text: String, color: Color = Palette.Warning, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(cor.copy(alpha = 0.10f))
+            .background(color.copy(alpha = 0.10f))
             .padding(14.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Box(
             Modifier
                 .padding(top = 6.dp, end = 12.dp)
-                .background(cor, RoundedCornerShape(2.dp))
+                .background(color, RoundedCornerShape(2.dp))
                 .fillMaxWidth(0f),
         )
         Text(
-            text = texto,
-            color = cor,
+            text = text,
+            color = color,
             fontSize = 14.sp,
             lineHeight = 21.sp,
             fontWeight = FontWeight.Medium,
@@ -71,10 +71,10 @@ fun Destaque(texto: String, cor: Color = Cores.Alerta, modifier: Modifier = Modi
 
 /** Título de seção dentro de uma aula. */
 @Composable
-fun TituloSecao(texto: String, cor: Color = Cores.Texto, modifier: Modifier = Modifier) {
+fun SectionTitle(text: String, color: Color = Palette.TextPrimary, modifier: Modifier = Modifier) {
     Text(
-        text = texto.uppercase(),
-        color = cor,
+        text = text.uppercase(),
+        color = color,
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 1.4.sp,
@@ -87,7 +87,7 @@ fun TituloSecao(texto: String, cor: Color = Cores.Texto, modifier: Modifier = Mo
  * quebrado em lugar errado engana mais do que ajuda.
  */
 @Composable
-fun BlocoCodigo(codigo: String, modifier: Modifier = Modifier) {
+fun CodeBlock(codigo: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -115,40 +115,40 @@ fun BlocoCodigo(codigo: String, modifier: Modifier = Modifier) {
  * nunca é Compose comum.
  */
 @Composable
-fun Palco(
-    rotulo: String,
+fun Stage(
+    label: String,
     modifier: Modifier = Modifier,
-    corBorda: Color = Cores.Leitura,
-    conteudo: @Composable () -> Unit,
+    borderColor: Color = Palette.Read,
+    content: @Composable () -> Unit,
 ) {
     Column(modifier.fillMaxWidth()) {
-        TituloSecao(rotulo, corBorda)
+        SectionTitle(label, borderColor)
         Box(
             Modifier
                 .padding(top = 8.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Cores.SuperficieAlta)
-                .border(1.dp, corBorda.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                .background(Palette.SurfaceHigh)
+                .border(1.dp, borderColor.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
                 .padding(12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            conteudo()
+            content()
         }
     }
 }
 
 /** Uma linha "rótulo → valor", para métricas do documento. */
 @Composable
-fun LinhaMetrica(rotulo: String, valor: String, cor: Color = Cores.Bytes) {
+fun MetricRow(label: String, value: String, color: Color = Palette.Bytes) {
     Row(
         Modifier.fillMaxWidth().padding(vertical = 3.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(rotulo, color = Cores.TextoFraco, fontSize = 13.sp)
+        Text(label, color = Palette.TextMuted, fontSize = 13.sp)
         Text(
-            valor,
-            color = cor,
+            value,
+            color = color,
             fontSize = 13.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,

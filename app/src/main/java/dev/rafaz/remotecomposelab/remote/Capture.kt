@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.remoto
+package dev.rafaz.remotecomposelab.remote
 
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.player.core.RemoteDocument
@@ -22,14 +22,14 @@ import androidx.compose.ui.platform.LocalContext
  * Firebase Remote Config ou empurrado para um relógio. Compose comum não tem
  * equivalente disso — uma `@Composable` não é um valor que você transporta.
  */
-class DocumentoRemoto(val bytes: ByteArray) {
-    val documento: RemoteDocument = RemoteDocument(bytes)
+class CapturedDocument(val bytes: ByteArray) {
+    val document: RemoteDocument = RemoteDocument(bytes)
 
-    val tamanhoBytes: Int get() = bytes.size
+    val sizeInBytes: Int get() = bytes.size
 
     /** Largura/altura que o documento declara para si mesmo. */
-    val largura: Int get() = documento.width
-    val altura: Int get() = documento.height
+    val width: Int get() = document.width
+    val height: Int get() = document.height
 
     /** Primeiros bytes em hexadecimal — para a aula que disseca o formato. */
     fun hex(quantidade: Int = 64): String =
@@ -39,7 +39,7 @@ class DocumentoRemoto(val bytes: ByteArray) {
 /**
  * Grava um documento a partir de conteúdo Remote Compose e devolve o resultado.
  *
- * Repare no detalhe mais importante desta função: o parâmetro [conteudo] é uma
+ * Repare no detalhe mais importante desta função: o parâmetro [content] é uma
  * `@Composable`, mas ela **não é renderizada na sua tela**. Ela é executada numa
  * composição paralela, "fora da tela", cujo único produto são bytes.
  *
@@ -50,19 +50,19 @@ class DocumentoRemoto(val bytes: ByteArray) {
  * Devolve `null` enquanto a gravação não terminou — daí o `?` no tipo.
  */
 @Composable
-fun lembrarDocumento(
-    vararg chaves: Any?,
-    conteudo: @Composable () -> Unit,
-): DocumentoRemoto? {
+fun rememberDocument(
+    vararg keys: Any?,
+    content: @Composable () -> Unit,
+): CapturedDocument? {
     val context = LocalContext.current
-    var resultado by remember { mutableStateOf<DocumentoRemoto?>(null) }
+    var result by remember { mutableStateOf<CapturedDocument?>(null) }
 
-    // As `chaves` permitem regravar o documento quando algo de fora muda.
+    // As `keys` permitem regravar o documento quando algo de fora muda.
     // Sem elas, o documento seria gravado uma única vez e nunca mais.
-    LaunchedEffect(*chaves) {
-        val capturado = captureSingleRemoteDocument(context, content = conteudo)
-        resultado = DocumentoRemoto(capturado.bytes)
+    LaunchedEffect(*keys) {
+        val captured = captureSingleRemoteDocument(context, content = content)
+        result = CapturedDocument(captured.bytes)
     }
 
-    return resultado
+    return result
 }

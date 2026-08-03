@@ -22,23 +22,25 @@ java {
 }
 
 application {
-    mainClass.set("dev.rafaz.remotecomposelab.server.ServidorKt")
+    // O sufixo `Kt` vem do Kotlin: um arquivo `Server.kt` com funções de nível
+    // superior vira a classe `ServerKt` no bytecode.
+    mainClass.set("dev.rafaz.remotecomposelab.server.ServerKt")
 }
 
 // Tarefa auxiliar: roda só a sonda, sem subir o servidor.
-tasks.register<JavaExec>("runSonda") {
+tasks.register<JavaExec>("runProbe") {
     group = "verification"
     description = "Prova que dá para gerar um documento Remote Compose em JVM pura."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("dev.rafaz.remotecomposelab.server.SondaKt")
+    mainClass.set("dev.rafaz.remotecomposelab.server.ProbeKt")
 }
 
 // Disseca um documento: tabela de opcodes + dump hexadecimal anotado.
-tasks.register<JavaExec>("runDissecar") {
+tasks.register<JavaExec>("runDissect") {
     group = "verification"
     description = "Imprime a tabela de opcodes e um dump hexadecimal de documentos reais."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("dev.rafaz.remotecomposelab.server.DissecarKt")
+    mainClass.set("dev.rafaz.remotecomposelab.server.DissectKt")
 }
 
 dependencies {

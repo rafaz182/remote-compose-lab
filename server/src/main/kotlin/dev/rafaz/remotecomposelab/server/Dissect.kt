@@ -6,7 +6,7 @@ import androidx.compose.remote.creation.dsl.background
 /**
  * Ferramenta de dissecação de documentos.
  *
- * Rode com:  .\gradlew.bat :server:runDissecar
+ * Rode com:  .\gradlew.bat :server:runDissect
  *
  * Ela faz duas coisas:
  *   1. imprime a TABELA DE OPCODES do formato, lida por reflexão da classe
@@ -17,13 +17,13 @@ import androidx.compose.remote.creation.dsl.background
  * O objetivo é didático: tirar o formato do lugar de "blob mágico".
  */
 fun main() {
-    tabelaDeOpcodes()
+    opcodeTable()
     println()
-    dumpAnotado("mínimo 100x50", documento(largura = 100, altura = 50) { })
+    annotatedDump("mínimo 100x50", document(width = 100, height = 50) { })
     println()
-    dumpAnotado("boas-vindas", documentoBoasVindas("Rafael"))
+    annotatedDump("boas-vindas", welcomeDocument("Rafael"))
     println()
-    analiseDiferencial()
+    differentialAnalysis()
 }
 
 /**
@@ -34,46 +34,46 @@ fun main() {
  * "provar o que significa cada byte". Se eu mudo só a largura e só os bytes
  * 13–16 mudam, então a largura mora nos bytes 13–16. Não é opinião.
  */
-private fun analiseDiferencial() {
+private fun differentialAnalysis() {
     println("=".repeat(72))
     println("ANÁLISE DIFERENCIAL — o que muda quando mudo UM parâmetro")
     println("=".repeat(72))
 
-    val base = documento(largura = 100, altura = 50) { }
+    val base = document(width = 100, height = 50) { }
 
-    comparar("largura 100 -> 300", base, documento(largura = 300, altura = 50) { })
-    comparar("altura   50 -> 999", base, documento(largura = 100, altura = 999) { })
-    comparar(
+    compare("largura 100 -> 300", base, document(width = 300, height = 50) { })
+    compare("altura   50 -> 999", base, document(width = 100, height = 999) { })
+    compare(
         "densidade 420 -> 160",
         base,
-        documento(largura = 100, altura = 50, densidade = 160) { },
+        document(width = 100, height = 50, density = 160) { },
     )
 
     // Como uma cor é gravada? Preto puro contra vermelho puro.
-    comparar(
+    compare(
         "cor de fundo #FF000000 -> #FFFF0000",
-        docComCor(0xFF000000.toInt()),
-        docComCor(0xFFFF0000.toInt()),
+        docWithColor(0xFF000000.toInt()),
+        docWithColor(0xFFFF0000.toInt()),
     )
 
     // E um texto? Trocar o nome muda o quê?
-    comparar(
+    compare(
         "texto \"Rafael\" -> \"Ana\"",
-        documentoBoasVindas("Rafael"),
-        documentoBoasVindas("Ana"),
+        welcomeDocument("Rafael"),
+        welcomeDocument("Ana"),
     )
 }
 
 /** Um documento mínimo cuja única característica é a cor de fundo. */
-private fun docComCor(cor: Int): ByteArray = documento(largura = 100, altura = 50) {
+private fun docWithColor(color: Int): ByteArray = document(width = 100, height = 50) {
     Column(
         modifier = androidx.compose.remote.creation.dsl.Modifier
-            .background(cor),
+            .background(color),
     ) { }
 }
 
-private fun comparar(rotulo: String, a: ByteArray, b: ByteArray) {
-    println("\n--- $rotulo ---")
+private fun compare(label: String, a: ByteArray, b: ByteArray) {
+    println("\n--- $label ---")
     if (a.size != b.size) {
         println("  tamanhos diferentes: ${a.size} vs ${b.size} bytes")
     }
@@ -95,7 +95,7 @@ private fun comparar(rotulo: String, a: ByteArray, b: ByteArray) {
  * é o número que identifica uma operação dentro do documento. Ler por reflexão
  * garante que a tabela nunca fique defasada em relação à biblioteca.
  */
-private fun tabelaDeOpcodes() {
+private fun opcodeTable() {
     println("=".repeat(72))
     println("TABELA DE OPCODES  (androidx.compose.remote.core.Operations)")
     println("=".repeat(72))
@@ -108,8 +108,8 @@ private fun tabelaDeOpcodes() {
         .sortedBy { it.second }
 
     println("total: ${campos.size} operações\n")
-    campos.forEach { (nome, codigo) ->
-        println("  %4d  0x%04X  %s".format(codigo, codigo, nome))
+    campos.forEach { (name, codigo) ->
+        println("  %4d  0x%04X  %s".format(codigo, codigo, name))
     }
 }
 
@@ -120,9 +120,9 @@ private fun tabelaDeOpcodes() {
  * documento (os textos da sua UI) aparecem ali em texto claro, e servem de
  * âncora para você se localizar no meio dos bytes.
  */
-private fun dumpAnotado(rotulo: String, bytes: ByteArray) {
+private fun annotatedDump(label: String, bytes: ByteArray) {
     println("=".repeat(72))
-    println("DOCUMENTO \"$rotulo\" — ${bytes.size} bytes")
+    println("DOCUMENTO \"$label\" — ${bytes.size} bytes")
     println("=".repeat(72))
 
     bytes.toList().chunked(16).forEachIndexed { linha, grupo ->

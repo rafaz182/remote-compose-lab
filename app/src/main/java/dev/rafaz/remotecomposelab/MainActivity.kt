@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Modifier
-import dev.rafaz.remotecomposelab.catalogo.Catalogo
-import dev.rafaz.remotecomposelab.ui.TemaLaboratorio
+import dev.rafaz.remotecomposelab.Catalog.Catalog
+import dev.rafaz.remotecomposelab.ui.LabTheme
 
 /**
  * Entrada do laboratório.
@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TemaLaboratorio {
-                Catalogo(
+            LabTheme {
+                Catalog(
                     // Empurra o conteúdo para fora da status bar / gesture bar.
                     modifier = Modifier
                         .fillMaxSize()

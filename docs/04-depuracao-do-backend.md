@@ -89,7 +89,7 @@ OK    api=7 mask=0 -> 142 bytes
 ### Resultado
 
 **`apiLevel = 6` é o piso.** A sonda ficou no repositório
-(`server/src/main/kotlin/.../Sonda.kt`): quando a biblioteca subir de versão,
+(`server/src/main/kotlin/.../Probe.kt`): quando a biblioteca subir de versão,
 rodar de novo responde em segundos se o piso mudou.
 
 > **Técnica generalizável:** transforme "qual é o valor certo?" numa pergunta
@@ -252,7 +252,7 @@ Java não conhece a convenção.
 
 ### Resultado
 
-Uma ponte de três linhas em Java (`server/src/main/java/.../PonteRc.java`):
+Uma ponte de três linhas em Java (`server/src/main/java/.../RcBridge.java`):
 
 ```java
 public static byte[] escrever(RemoteComposeWriter writer, Function1<RcScope, Unit> conteudo) {

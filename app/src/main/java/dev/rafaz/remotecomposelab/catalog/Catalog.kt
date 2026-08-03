@@ -1,4 +1,4 @@
-package dev.rafaz.remotecomposelab.catalogo
+package dev.rafaz.remotecomposelab.Catalog
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rafaz.remotecomposelab.ui.Cores
+import dev.rafaz.remotecomposelab.ui.Palette
 
 /**
  * Navegação do laboratório.
@@ -43,24 +43,24 @@ import dev.rafaz.remotecomposelab.ui.Cores
  * assunto de verdade, que é o Remote Compose.
  */
 @Composable
-fun Catalogo(modifier: Modifier = Modifier) {
-    var aulaAberta by remember { mutableStateOf<Licao?>(null) }
+fun Catalog(modifier: Modifier = Modifier) {
+    var openLesson by remember { mutableStateOf<Lesson?>(null) }
 
     // Botão "voltar" do Android fecha a aula em vez de fechar o app.
-    BackHandler(enabled = aulaAberta != null) { aulaAberta = null }
+    BackHandler(enabled = openLesson != null) { openLesson = null }
 
-    val aula = aulaAberta
-    if (aula == null) {
-        ListaDeAulas(modifier, onAbrir = { aulaAberta = it })
+    val lesson = openLesson
+    if (lesson == null) {
+        LessonList(modifier, onOpen = { openLesson = it })
     } else {
-        TelaDaAula(aula, modifier, onVoltar = { aulaAberta = null })
+        LessonScreen(lesson, modifier, onBack = { openLesson = null })
     }
 }
 
 @Composable
-private fun ListaDeAulas(modifier: Modifier = Modifier, onAbrir: (Licao) -> Unit) {
+private fun LessonList(modifier: Modifier = Modifier, onOpen: (Lesson) -> Unit) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().background(Cores.Fundo),
+        modifier = modifier.fillMaxSize().background(Palette.Background),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -68,13 +68,13 @@ private fun ListaDeAulas(modifier: Modifier = Modifier, onAbrir: (Licao) -> Unit
             Column(Modifier.padding(bottom = 10.dp)) {
                 Text(
                     "Remote Compose Lab",
-                    color = Cores.Texto,
+                    color = Palette.TextPrimary,
                     fontSize = 27.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
                     "androidx.compose.remote · 1.0.0-alpha16",
-                    color = Cores.Escrita,
+                    color = Palette.Write,
                     fontSize = 13.sp,
                     fontFamily = FontFamily.Monospace,
                     modifier = Modifier.padding(top = 4.dp),
@@ -83,7 +83,7 @@ private fun ListaDeAulas(modifier: Modifier = Modifier, onAbrir: (Licao) -> Unit
                     "Um laboratório para entender o Server-Driven UI oficial do " +
                         "Google — não pelo \"como usar\", mas pelo que ele realmente é " +
                         "por dentro.",
-                    color = Cores.TextoFraco,
+                    color = Palette.TextMuted,
                     fontSize = 14.sp,
                     lineHeight = 21.sp,
                     modifier = Modifier.padding(top = 12.dp),
@@ -91,14 +91,14 @@ private fun ListaDeAulas(modifier: Modifier = Modifier, onAbrir: (Licao) -> Unit
             }
         }
 
-        items(LICOES) { licao ->
-            CartaoDaAula(licao) { onAbrir(licao) }
+        items(LESSONS) { Lesson ->
+            LessonCard(Lesson) { onOpen(Lesson) }
         }
 
         item {
             Text(
                 "Mais aulas a caminho — combinamos o rumo juntos.",
-                color = Cores.TextoFraco,
+                color = Palette.TextMuted,
                 fontSize = 13.sp,
                 modifier = Modifier.padding(top = 14.dp),
             )
@@ -107,12 +107,12 @@ private fun ListaDeAulas(modifier: Modifier = Modifier, onAbrir: (Licao) -> Unit
 }
 
 @Composable
-private fun CartaoDaAula(licao: Licao, onClick: () -> Unit) {
+private fun LessonCard(Lesson: Lesson, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Cores.Superficie)
+            .background(Palette.Surface)
             .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -121,22 +121,22 @@ private fun CartaoDaAula(licao: Licao, onClick: () -> Unit) {
             Modifier
                 .size(38.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Cores.Escrita.copy(alpha = 0.16f)),
+                .background(Palette.Write.copy(alpha = 0.16f)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                "%02d".format(licao.numero),
-                color = Cores.Escrita,
+                "%02d".format(Lesson.number),
+                color = Palette.Write,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
             )
         }
         Column(Modifier.padding(start = 14.dp)) {
-            Text(licao.titulo, color = Cores.Texto, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(Lesson.title, color = Palette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Text(
-                licao.resumo,
-                color = Cores.TextoFraco,
+                Lesson.summary,
+                color = Palette.TextMuted,
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 modifier = Modifier.padding(top = 3.dp),
@@ -146,24 +146,24 @@ private fun CartaoDaAula(licao: Licao, onClick: () -> Unit) {
 }
 
 @Composable
-private fun TelaDaAula(licao: Licao, modifier: Modifier = Modifier, onVoltar: () -> Unit) {
-    Column(modifier.fillMaxSize().background(Cores.Fundo)) {
+private fun LessonScreen(Lesson: Lesson, modifier: Modifier = Modifier, onBack: () -> Unit) {
+    Column(modifier.fillMaxSize().background(Palette.Background)) {
         Row(
             Modifier.fillMaxWidth().padding(start = 4.dp, top = 8.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onVoltar) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Cores.Texto)
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Palette.TextPrimary)
             }
             Column {
                 Text(
-                    "AULA %02d".format(licao.numero),
-                    color = Cores.Escrita,
+                    "AULA %02d".format(Lesson.number),
+                    color = Palette.Write,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.4.sp,
                 )
-                Text(licao.titulo, color = Cores.Texto, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                Text(Lesson.title, color = Palette.TextPrimary, fontSize = 19.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -173,7 +173,7 @@ private fun TelaDaAula(licao: Licao, modifier: Modifier = Modifier, onVoltar: ()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp),
         ) {
-            licao.conteudo()
+            Lesson.content()
             androidx.compose.foundation.layout.Spacer(Modifier.size(40.dp))
         }
     }

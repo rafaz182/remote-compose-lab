@@ -5,7 +5,15 @@ Google**). Não é código de produção: o valor está na explicação.
 
 ## Regras deste repositório
 
-1. **Português.** Código, comentários, docs e commits.
+1. **Código em inglês, texto em português.**
+   - Identificadores — classes, funções, variáveis, parâmetros, constantes,
+     nomes de arquivo e de pacote — **sempre em inglês**.
+   - Comentários, KDoc, documentação, mensagens de commit e todo o texto
+     didático exibido no app — **em português**.
+   - Uma string que o usuário lê é conteúdo, e fica em português. Uma string
+     que é chave, rota ou identificador é código. As rotas HTTP são a exceção
+     histórica: `/documento/tela/{id}` ficou em português porque já é contrato
+     publicado entre os dois módulos.
 2. **Comentário explica o *porquê*.** Se um comentário só repete o que a linha
    faz, apague-o. Registrar *qual erro de build nos trouxe até aqui* é conteúdo
    de primeira classe — várias decisões neste repo vieram de erro real.
@@ -62,7 +70,7 @@ app/src/main/java/dev/rafaz/remotecomposelab/
 ├── remoto/                # grava documentos e busca no :server
 └── licoes/                # uma aula por arquivo, L01..Lxx
 server/src/main/kotlin/    # Ktor + geração de documentos em JVM pura
-server/src/main/java/      # PonteRc.java — contorna um `internal` do Kotlin
+server/src/main/java/      # RcBridge.java — contorna um `internal` do Kotlin
 docs/                      # texto longo: teoria que não cabe em comentário
 ```
 
@@ -72,7 +80,7 @@ Custou quatro armadilhas seguidas, todas com o mesmo sintoma (tela em branco,
 HTTP 200, log limpo). Não repita:
 
 1. `Profile` precisa de `apiLevel >= 6`. Não há constante pública; descobrimos
-   varrendo (ver `server/.../Sonda.kt`).
+   varrendo (ver `server/.../Probe.kt`).
 2. **Não** envolva o conteúdo em `RcRoot { }` se usar `createRcBuffer` — ele já
    cria a raiz. Duas raízes ⇒ documento 0×0.
 3. O tamanho vem do `CreationDisplayInfo` passado ao `RemoteComposeWriter`,
@@ -91,11 +99,11 @@ coloque lado a lado, e compare `documento.stats`. Detalhado em
 ## Ferramentas de investigação
 
 ```powershell
-.\gradlew.bat :server:runSonda      # varre apiLevel x profileMask
-.\gradlew.bat :server:runDissecar   # tabela de opcodes + hex dump + diferencial
+.\gradlew.bat :server:runProbe      # varre apiLevel x profileMask
+.\gradlew.bat :server:runDissect   # tabela de opcodes + hex dump + diferencial
 ```
 
-`runDissecar` é a mais útil: imprime as 172 operações do formato (lidas por
+`runDissect` é a mais útil: imprime as 172 operações do formato (lidas por
 reflexão, nunca defasadas), dumps hexadecimais anotados, e **análise
 diferencial** — gera pares de documentos que diferem em um parâmetro e mostra
 quais bytes mudaram. Foi como provamos onde ficam largura e altura, que a

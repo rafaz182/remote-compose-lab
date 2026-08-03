@@ -32,23 +32,23 @@ import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
  * Este arquivo é a demonstração de uma técnica de depuração, não código de
  * produção. A técnica está explicada em `docs/04-depuracao-do-backend.md`.
  *
- * Rode com:  .\gradlew.bat :server:runSonda
+ * Rode com:  .\gradlew.bat :server:runProbe
  */
 fun main() {
-    val plataforma = JvmRcPlatformServices()
-    val fabrica = RemoteComposeWriterFactory { info, profile, obj ->
+    val platform = JvmRcPlatformServices()
+    val factory = RemoteComposeWriterFactory { info, profile, obj ->
         RemoteComposeWriter(info, "", profile, obj)
     }
 
     println("varrendo apiLevel x profileMask...")
     for (api in 0..8) {
         for (mask in 0..2) {
-            val resultado = runCatching {
-                createRcBuffer(RcProfile(Profile(api, mask, plataforma, fabrica), true)) {
+            val result = runCatching {
+                createRcBuffer(RcProfile(Profile(api, mask, platform, factory), true)) {
                     RcRoot { Column { Text("Olá do servidor") } }
                 }
             }
-            resultado.onSuccess { bytes ->
+            result.onSuccess { bytes ->
                 println("  OK   api=$api mask=$mask -> ${bytes.size} bytes")
             }.onFailure { e ->
                 println("  FALHA api=$api mask=$mask -> ${e.message}")

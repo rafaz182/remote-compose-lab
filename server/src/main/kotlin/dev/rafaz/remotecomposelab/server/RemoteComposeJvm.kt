@@ -26,14 +26,14 @@ import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
  *     java.lang.RuntimeException: Unsupported API level 5
  *         at androidx.compose.remote.core.operations.Header.apply(Header.java:459)
  *
- * A partir de 6 funciona. Ver `Sonda.kt`, que reproduz a varredura.
+ * A partir de 6 funciona. Ver `Probe.kt`, que reproduz a varredura.
  * Se a build quebrar aqui após subir a versão da biblioteca, rode a sonda de
  * novo — provavelmente o piso subiu.
  */
-const val API_LEVEL_MINIMO = 6
+const val MIN_API_LEVEL = 6
 
 /** Densidade de referência. 420 dpi ≈ a de um telefone moderno. */
-private const val DENSIDADE_PADRAO = 420
+private const val DEFAULT_DENSITY = 420
 
 /**
  * Grava um documento e devolve os bytes prontos para trafegar.
@@ -80,22 +80,22 @@ private const val DENSIDADE_PADRAO = 420
  * @param altura    altura de referência do documento, em pixels
  * @param densidade densidade de referência, em dpi
  */
-fun documento(
-    largura: Int = 1080,
-    altura: Int = 600,
-    densidade: Int = DENSIDADE_PADRAO,
-    conteudo: RcScope.(RemoteComposeWriter) -> Unit,
+fun document(
+    width: Int = 1080,
+    height: Int = 600,
+    density: Int = DEFAULT_DENSITY,
+    content: RcScope.(RemoteComposeWriter) -> Unit,
 ): ByteArray {
-    val plataforma = JvmRcPlatformServices()
-    val fabrica = RemoteComposeWriterFactory { info, profile, obj ->
+    val platform = JvmRcPlatformServices()
+    val factory = RemoteComposeWriterFactory { info, profile, obj ->
         RemoteComposeWriter(info, "", profile, obj)
     }
-    val profile = Profile(API_LEVEL_MINIMO, 0, plataforma, fabrica)
+    val profile = Profile(MIN_API_LEVEL, 0, platform, factory)
 
     // O construtor que recebe CreationDisplayInfo é o único que preenche
     // largura, altura e densidade no cabeçalho do documento.
     val writer = RemoteComposeWriter(
-        CreationDisplayInfo(largura, altura, densidade),
+        CreationDisplayInfo(width, height, density),
         "",
         profile,
         null,
@@ -103,12 +103,12 @@ fun documento(
 
     // A ponte em Java existe porque `RcScopeImpl` é `internal` no Kotlin.
     // Ela também cria o RcRoot — quem o criava antes era o `createRcBuffer`,
-    // que deixamos de usar. Veja PonteRc.java para o porquê completo.
+    // que deixamos de usar. Veja RcBridge.java para o porquê completo.
     //
     // Passamos o `writer` para o conteúdo porque criar um VALOR remoto
     // (`RcFloat(writer, 0f)`) exige uma referência a ele. Telas que não usam
     // estado simplesmente ignoram o parâmetro.
-    return PonteRc.escrever(writer) { escopo -> escopo.conteudo(writer) }
+    return RcBridge.write(writer) { scope -> scope.content(writer) }
 }
 
 /*

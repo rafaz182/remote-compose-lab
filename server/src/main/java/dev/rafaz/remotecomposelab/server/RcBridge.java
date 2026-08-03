@@ -31,20 +31,20 @@ import kotlin.jvm.functions.Function1;
  * quebrar em qualquer versão nova. Se o :server parar de compilar depois de
  * um upgrade, comece a investigar por aqui.
  */
-public final class PonteRc {
+public final class RcBridge {
 
-    private PonteRc() {
+    private RcBridge() {
     }
 
     /**
      * Executa {@code conteudo} dentro da raiz do documento e devolve os bytes.
      */
-    public static byte[] escrever(
+    public static byte[] write(
             RemoteComposeWriter writer,
-            Function1<RcScope, Unit> conteudo
+            Function1<RcScope, Unit> content
     ) {
-        RcScopeImpl escopo = new RcScopeImpl(writer);
-        escopo.RcRoot(conteudo);
+        RcScopeImpl scope = new RcScopeImpl(writer);
+        scope.RcRoot(content);
 
         // CUIDADO: `writer.buffer()` devolve o array de apoio INTEIRO —
         // 1 MB alocado de uma vez, quase todo zeros. Usá-lo faria o servidor
@@ -64,7 +64,7 @@ public final class PonteRc {
      * vai avaliar. Somar, multiplicar ou comparar esse objeto no Kotlin
      * grava uma FÓRMULA no documento, não faz uma conta.
      */
-    public static RcFloat valorFloat(RemoteComposeWriter writer, float inicial) {
-        return new RcFloat(writer, inicial);
+    public static RcFloat floatValue(RemoteComposeWriter writer, float initial) {
+        return new RcFloat(writer, initial);
     }
 }
