@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.CalendarSystemClock
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.player.compose.impl.RemoteComposePlayer
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +29,7 @@ import dev.rafaz.remotecomposelab.ui.Callout
 import dev.rafaz.remotecomposelab.ui.Explanation
 import dev.rafaz.remotecomposelab.ui.Stage
 import kotlinx.coroutines.launch
-import androidx.compose.remote.player.view.RemoteComposePlayer as viewPlayer
+import androidx.compose.remote.player.view.RemoteComposePlayer as ViewPlayer
 
 /**
  * AULA 06 — O experimento dos dois players
@@ -39,8 +41,8 @@ import androidx.compose.remote.player.view.RemoteComposePlayer as viewPlayer
  *
  * Um documento pode conter valores e ações que os alteram:
  *
- *     val valor = PonteRc.valorFloat(writer, 1f)
- *     Box(Modifier.onClick { setValue(valor, 99f) })
+ *     val value = RcBridge.floatValue(writer, 1f)
+ *     Box(Modifier.onClick { setValue(value, 99f) })
  *
  * No nosso app, tocar nesse botão **não muda nada**. E não há erro: o
  * documento carrega, desenha, o clique é registrado. Simplesmente o valor
@@ -74,8 +76,10 @@ fun L06TwoPlayers() {
     var error by remember { mutableStateOf<String?>(null) }
 
     // Guardamos a instância da View para poder falar com ela depois.
-    var viewPlayer by remember { mutableStateOf<viewPlayer?>(null) }
+    var viewPlayer by remember { mutableStateOf<ViewPlayer?>(null) }
     var stateUpdaterResult by remember { mutableStateOf<String?>(null) }
+    var documentNames by remember { mutableStateOf<String?>(null) }
+    var domainQualifiedKey by remember { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
 
@@ -90,9 +94,9 @@ fun L06TwoPlayers() {
         CodeBlock(
             """
             // no servidor, dentro do documento:
-            val valor = PonteRc.valorFloat(writer, 1f)
-            Text(createTextFromFloat(valor, 3, 0, 0))
-            Box(Modifier….onClick { setValue(valor, 99f) })
+            val value = RcBridge.floatValue(writer, 1f)
+            Text(createTextFromFloat(value, 3, 0, 0))
+            Box(Modifier….onClick { setValue(value, 99f) })
             """,
         )
 
@@ -100,7 +104,27 @@ fun L06TwoPlayers() {
             onClick = {
                 scope.launch {
                     runCatching { DocumentClient.fetch("/documento/tela/contador") }
-                        .onSuccess { bytes = it; error = null }
+                        .onSuccess {
+                            bytes = it
+                            error = null
+                            // DIAGNÓSTICO — a pergunta que trava a investigação:
+                            // que nomes o documento REALMENTE registrou, e qual
+                            // chave o StateUpdater procura? Se não coincidirem,
+                            // achamos a causa.
+                            val doc = RemoteDocument(it)
+                            val floatNames = doc.getNamedVariables(NamedVariable.FLOAT_TYPE)
+                            documentNames = if (floatNames.isEmpty()) {
+                                "(nenhum float nomeado)"
+                            } else {
+                                floatNames.joinToString(", ")
+                            }
+                            domainQualifiedKey = StateUpdater.getUserDomainString("contador")
+                            android.util.Log.i(
+                                "RemoteComposeLab",
+                                "nomes float = $documentNames | " +
+                                    "getUserDomainString(\"contador\") = $domainQualifiedKey",
+                            )
+                        }
                         .onFailure { error = it.message ?: it.toString() }
                 }
             },
@@ -135,7 +159,7 @@ fun L06TwoPlayers() {
                 AndroidView(
                     modifier = Modifier.fillMaxWidth().height(200.dp),
                     factory = { context ->
-                        viewPlayer(context).apply {
+                        ViewPlayer(context).apply {
                             layoutParams = ViewGroup.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -165,16 +189,46 @@ fun L06TwoPlayers() {
             // ação de dentro do documento.
             Button(
                 onClick = {
-                    runCatching {
-                        viewPlayer?.stateUpdater?.setUserLocalFloat("contador", 99f)
-                        stateUpdaterResult = "chamado — olhe o quadro B"
-                    }.onFailure { stateUpdaterResult = "falhou: ${it.message}" }
+                    // ATENÇÃO ao `?.`: se `viewPlayer` fosse null, a chamada
+                    // seria engolida em silêncio e mesmo assim reportaríamos
+                    // "chamado" — testando um no-op sem perceber. Por isso o
+                    // diagnóstico agora informa o estado de cada elo.
+                    val player = viewPlayer
+                    val updater = player?.stateUpdater
+                    stateUpdaterResult = when {
+                        player == null -> "viewPlayer é NULL — a View não foi capturada"
+                        updater == null -> "stateUpdater é NULL"
+                        else -> runCatching {
+                            updater.setUserLocalFloat("contador", 99f)
+                            // HIPÓTESE: o valor muda, mas a View não repinta.
+                            // O relógio da aula anterior só "anda" porque o
+                            // loop do clock força o redesenho. Um documento
+                            // estático não tem quem o acorde — então acordamos
+                            // à mão.
+                            player.invalidate()
+                            "setUserLocalFloat + invalidate() executados sem exceção"
+                        }.getOrElse { "lançou: ${it::class.simpleName}: ${it.message}" }
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("Mudar para 99 de FORA (StateUpdater)") }
 
             stateUpdaterResult?.let {
                 Text(it, color = Palette.Bytes, fontSize = 13.sp)
+            }
+
+            // O que o documento REALMENTE registrou, contra a chave que o
+            // StateUpdater monta. Se divergirem, achamos a causa.
+            documentNames?.let {
+                CodeBlock(
+                    """
+                    nomes de float no documento:
+                      $it
+
+                    chave que o StateUpdater monta:
+                      getUserDomainString("contador") = $domainQualifiedKey
+                    """,
+                )
             }
 
             CodeBlock(

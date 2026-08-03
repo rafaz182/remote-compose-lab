@@ -180,13 +180,56 @@ consulta.
 Ou seja: a suspeita passou da biblioteca para o **nosso código**. Menos
 glamouroso e mais provável.
 
-**Próximos passos, em ordem de custo:**
-1. Usar `StateUpdater.getUserDomainString("contador")` como chave, em vez do
-   nome cru.
-2. Investigar `RemoteDomains` e descobrir em que domínio `named()` registra.
-3. Procurar no dump binário o opcode `VALUE_FLOAT_CHANGE_ACTION` (222) —
-   `doc.stats` não lista ações, então a checagem tem que ser byte a byte.
-4. Testar `RcFloat.flush()`, que existe na API e cujo papel não investigamos.
+### A investigação do domínio — achado real, mas insuficiente
+
+Instrumentamos o app para responder a pergunta direta: *que nomes o documento
+registrou, e qual chave o `StateUpdater` procura?*
+
+```kotlin
+doc.getNamedVariables(NamedVariable.FLOAT_TYPE)   // o que está no documento
+StateUpdater.getUserDomainString("contador")      // o que o updater monta
+```
+
+Resposta:
+
+```
+nomes float no documento         = contador
+getUserDomainString("contador")  = USER:contador
+```
+
+**Divergiam.** O documento registrava o nome cru; o `setUserLocalFloat` procurava
+por `USER:contador`. Nunca se encontravam — e por isso a chamada não dava erro
+e também não fazia nada.
+
+Corrigimos no servidor (`named("USER:contador")`) e confirmamos que os dois
+lados passaram a bater. **O valor continuou não mudando.**
+
+Achado legítimo e documentado — os domínios (`RemoteDomains.USER` / `SYSTEM`)
+existem e importam. Mas não era a causa raiz.
+
+### O que já está eliminado
+
+| Hipótese | Como foi testada | Veredito |
+|---|---|---|
+| `named()` ou a aritmética atrapalham | repro mínima sem os dois | ❌ eliminada |
+| defeito no invólucro de Compose | mesmo documento no player de View | ❌ eliminada |
+| nome/domínio não batem | `getNamedVariables` × `getUserDomainString` | ⚠️ era real, corrigido, **insuficiente** |
+| `viewPlayer` ou `stateUpdater` nulos | diagnóstico reporta cada elo | ❌ eliminada — ambos não-nulos, sem exceção |
+| a View não repinta | `player.invalidate()` explícito | ❌ eliminada |
+
+Cinco hipóteses queimadas, uma correção real no caminho. O `setValue` e o
+`StateUpdater` continuam sem efeito.
+
+### O que ainda não foi testado
+
+1. `RcFloat.flush()` — existe na API pública, e nunca descobrimos o que faz.
+   É o candidato mais promissor: o nome sugere que o valor precisa ser
+   "descarregado" no documento.
+2. `player.updateDocument(doc)` em vez de `setDocument` — talvez o caminho de
+   atualização seja outro.
+3. Procurar o opcode `VALUE_FLOAT_CHANGE_ACTION` (222) no dump binário.
+   `doc.stats` não lista ações, então essa checagem tem que ser byte a byte —
+   e responderia em definitivo se a ação chega a ser gravada.
 
 > **Nota de método:** o experimento não deu o resultado que eu esperava, e
 > mesmo assim foi o mais produtivo até agora — eliminou uma hipótese inteira

@@ -76,7 +76,7 @@ private const val MUTED_S = 0xFF9A9AAE.toInt()
  *    e alterar esse valor depois, via `StateUpdater`. É a porta dos fundos
  *    entre os dois mundos.
  *
- * 3. `onClick { setValue(contador, 1f + contador) }` — grava no documento a
+ * 3. `onClick { setValue(counter, 1f + counter) }` — grava no documento a
  *    instrução "ao tocar, atribua a este espaço o valor dele mais um".
  *
  * Note a ordem em `1f + contador`. A biblioteca oferece `Float.plus(RcFloat)`,
@@ -86,7 +86,18 @@ private const val MUTED_S = 0xFF9A9AAE.toInt()
 fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer ->
     // O espaço de valor. A partir daqui, `contador` é uma REFERÊNCIA, não um
     // número — some, multiplique, compare: tudo vira fórmula gravada.
-    val contador = RcBridge.floatValue(writer, 7f).named("contador")
+    // O prefixo "USER:" não é decoração — é o DOMÍNIO do nome.
+    //
+    // Descoberto instrumentando o app (Aula 06). O documento registrava o nome
+    // cru `contador`, mas `StateUpdater.setUserLocalFloat("contador", …)`
+    // procura por `USER:contador` — chave que ele monta internamente com
+    // `getUserDomainString()`. Os dois nunca se encontravam, e por isso a
+    // chamada não dava erro nenhum e também não fazia nada.
+    //
+    // Existem dois domínios (enum `RemoteDomains`): USER e SYSTEM. Um valor que
+    // o app hospedeiro deve poder alterar de fora precisa nascer no domínio
+    // USER.
+    val counter = RcBridge.floatValue(writer, 7f).named("USER:contador")
 
     Column(modifier = Modifier.fillMaxWidth().background(BG_S).padding(28f)) {
         Text("CONTADOR", fontSize = RcSp(16f), color = ACCENT_S)
@@ -109,7 +120,7 @@ fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer -
                 .padding(28f),
         ) {
             Text(
-                createTextFromFloat(contador, 3, 0, 0),
+                createTextFromFloat(counter, 3, 0, 0),
                 fontSize = RcSp(64f),
                 color = CYAN_S,
             )
@@ -122,9 +133,9 @@ fun counterScreen(): ByteArray = document(width = 1080, height = 520) { writer -
             RcRowHorizontalPositioning.SpaceBetween,
             RcVerticalPositioning.Center,
         ) {
-            stateButton("−  1", 0xFFFF6B6B.toInt()) { setValue(contador, (-1f) + contador) }
-            stateButton("zerar", MUTED_S) { setValue(contador, 0f) }
-            stateButton("+  1", GREEN_S) { setValue(contador, 1f + contador) }
+            stateButton("−  1", 0xFFFF6B6B.toInt()) { setValue(counter, (-1f) + counter) }
+            stateButton("zerar", MUTED_S) { setValue(counter, 0f) }
+            stateButton("+  1", GREEN_S) { setValue(counter, 1f + counter) }
         }
 
         Box(modifier = Modifier.height(18f)) {}
